@@ -111,7 +111,7 @@
             //console.log("total char: "+ totalCharacterCount);
             var totalWord = totalCharacterCount/5;
             var WPS = totalWord/timePassedInSeconds; 
-            var WPM = WPS*60;
+            var WPM = Math.round(WPS*60);
             //console.log("totalWord: " + totalWord +" WPS: " + WPS + " WPM: " +WPM)
             return WPM;
         }
