@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title> Type race</title>
+    </head>
+    <style>
+        .wrong {
+            color: red;
+        }
+        .currentWord {
+            background-color: greenyellow;
+        }
+        .doneWord {
+            color: lawngreen
+        }
+    </style>
+    <script>
+        
+        var Paragraph = function(paragraph_text) {
+            var wordArray = paragraph_text.split(" ");
+            var currentWordIndex = 0;
+            this.getArray = function() {
+                return wordArray;
+            }
+            this.getCurrentWordIndex = function() {
+                return currentWordIndex;
+            }
+            this.getText = function() {
+                return paragraph_text;
+            }
+            this.getCurrentWord = function() {
+                return wordArray[currentWordIndex];
+            } 
+            this.hasWords = function() {
+                return wordArray.length - 1 > currentWordIndex
+            }
+            this.updateCurrentWordIndex = function() {
+                currentWordIndex = this.hasWords() ? currentWordIndex+1 : -1
+            }
+        };
+        
+        /**TODO this will be populated automatically */
+        var paragraph = new Paragraph("This makes sense because proof-reading");
+        
+        function inputCheck() {
+            
+            var expectedWord = paragraph.getCurrentWord() + " ";
+            var dom = document.getElementById('userinput')
+            var typed = dom.value;
+            
+            console.log(typed)
+            
+            if(!expectedWord.startsWith(typed) && (dom.getAttribute('class') != 'wrong')) {
+                dom.setAttribute('class', 'wrong')
+            }
+            else if(expectedWord.startsWith(typed) && (dom.getAttribute('class') == 'wrong')) {
+                dom.removeAttribute('class')
+            }
+            
+            if(!expectedWord.localeCompare(typed)) {
+                
+                dom.value = ''         
+                paragraph.updateCurrentWordIndex() 
+                updateTextBlock(paragraph.getCurrentWordIndex())
+            }
+        };
+        
+        function updateTextBlock(presentIndex) {
+            if(presentIndex !== -1) {
+                var previousWordId = 'word' + (presentIndex - 1)
+                var currentWordId = 'word' + presentIndex
+                console.log("previousWordId: " + previousWordId)
+                document.getElementById(previousWordId).removeAttribute('class')
+                document.getElementById(previousWordId).setAttribute('class', 'doneWord')
+                document.getElementById(currentWordId).setAttribute('class', 'currentWord')
+            }
+            else {
+                var previousWordId = 'word' + (paragraph.getArray().length - 1)
+                document.getElementById(previousWordId).removeAttribute('class')
+                document.getElementById(previousWordId).setAttribute('class', 'doneWord')
+            }
+        }
+        
+        function spanify(wordArray) {
+            var html = ""
+            for(i = 0; i < wordArray.length; i++) {
+                var id = 'word'+i
+                html  = html + "<span id="+ id +">" + wordArray[i] +"</span> " 
+            }
+            return html  
+        }               
+        </script>
+    <body>
+        <div id = "wordContainer">
+        </div>
+        <input type="text" id = "userinput" onkeyup="inputCheck()"/>
+        <script>
+           document.getElementById("wordContainer").innerHTML = spanify(paragraph.getArray())
+           document.getElementById("word0").setAttribute('class', 'currentWord') 
+         </script>
+    </body>
+    </html>
