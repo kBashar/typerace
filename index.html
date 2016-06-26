@@ -2,6 +2,7 @@
 <html>
     <head>
     <title> Type race</title>
+    <script type='text/javascript' src='CountDownTimer.js'></script>
     </head>
     <style>
         .wrong {
@@ -15,7 +16,6 @@
         }
     </style>
     <script>
-        
         var Paragraph = function(paragraph_text) {
             var wordArray = paragraph_text.split(" ");
             var currentWordIndex = 0;
@@ -88,12 +88,41 @@
                 html  = html + "<span id="+ id +">" + wordArray[i] +"</span> " 
             }
             return html  
-        }               
+        } 
+        
+        
+        
+        /** This implementation is going to be changed in final version */
+        window.onload = function() {
+            var userInput = document.querySelector("#userinput");
+            var timerDisplay = document.querySelector("#startTimer")
+            cdTimer = new CountDownTimer(10,1000)
+            cdTimer.onTick(function(obj){
+                var minutes = obj.minutes < 10 ? '0' + obj.minutes : obj.minutes
+                var seconds = obj.seconds < 10 ? '0' + obj.seconds : obj.seconds
+                var cdString = minutes + ":" + seconds
+                console.log(cdString);
+                timerDisplay.textContent = cdString;
+                // Time is up
+                if(obj.minutes === 0 && obj.seconds === 0) {
+                    userInput.disabled = false;
+                    userInput.focus();
+                }
+            })
+            cdTimer.start()
+            console.log("window loaded");
+        }
+        function startRace() {
+            
+        }                     
         </script>
     <body>
+        <div>
+            <h1>Test start in: <span id = "startTimer"></span></h1></br>
+        </div>
         <div id = "wordContainer">
         </div>
-        <input type="text" id = "userinput" onkeyup="inputCheck()"/>
+        <input type="text" id = "userinput" disabled = "disabled" onkeyup="inputCheck()"/>
         <script>
            document.getElementById("wordContainer").innerHTML = spanify(paragraph.getArray())
            document.getElementById("word0").setAttribute('class', 'currentWord') 
