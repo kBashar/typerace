@@ -16,13 +16,14 @@ CountDownTimer.prototype.start = function() {
   if (this.running) {
     return;
   }
-  this.running = true;
+  this.running = true; 
   var start = Date.now(),
       that = this,
-      diff, obj;
+      diff, obj, timePassed;
 
   (function timer() {
     diff = that.duration - (((Date.now() - start) / 1000) | 0);
+    timePassed = (((Date.now() - start) / 1000) | 0);
 
     if (diff > 0) {
       setTimeout(timer, that.granularity);
@@ -32,6 +33,7 @@ CountDownTimer.prototype.start = function() {
     }
 
     obj = CountDownTimer.parse(diff);
+    obj.timePassed = timePassed;
     that.tickFtns.forEach(function(ftn) {
       ftn.call(this,obj);
     }, that);

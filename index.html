@@ -3,6 +3,7 @@
     <head>
     <title> Type race</title>
     <script type='text/javascript' src='CountDownTimer.js'></script>
+    <script type='text/javascript' src='paragraph.js'></script>
     </head>
     <style>
         .wrong {
@@ -16,36 +17,13 @@
         }
     </style>
     <script>
-        var Paragraph = function(paragraph_text) {
-            var wordArray = paragraph_text.split(" ");
-            var currentWordIndex = 0;
-            this.getArray = function() {
-                return wordArray;
-            }
-            this.getCurrentWordIndex = function() {
-                return currentWordIndex;
-            }
-            this.getText = function() {
-                return paragraph_text;
-            }
-            this.getCurrentWord = function() {
-                return wordArray[currentWordIndex];
-            } 
-            this.hasWords = function() {
-                return wordArray.length - 1 > currentWordIndex
-            }
-            this.updateCurrentWordIndex = function() {
-                currentWordIndex = this.hasWords() ? currentWordIndex+1 : -1
-            }
-        };
-        
         /**TODO this will be populated automatically */
         var paragraph = new Paragraph("This makes sense because proof-reading");
         
         function inputCheck() {
             
             var expectedWord = paragraph.getCurrentWord() + " ";
-            var dom = document.getElementById('userinput')
+            var dom = document.getElementById('userInput')
             var typed = dom.value;
             
             console.log(typed)
@@ -61,7 +39,7 @@
                 
                 dom.value = ''         
                 paragraph.updateCurrentWordIndex() 
-                updateTextBlock(paragraph.getCurrentWordIndex())
+                updateTextBlock(paragraph.getCurrentIndex())
             }
         };
         
@@ -91,38 +69,89 @@
         } 
         
         
-        
-        /** This implementation is going to be changed in final version */
-        window.onload = function() {
-            var userInput = document.querySelector("#userinput");
-            var timerDisplay = document.querySelector("#startTimer")
-            cdTimer = new CountDownTimer(10,1000)
+        /**
+         * Race will start in given seconds
+         */
+        function startRaceIn(timeSeconds) {
+            var raceBoard = document.querySelector("#raceBoard");
+            raceBoard.innerHTML = "<h1>Test start in: <span id = 'startTimer'></span></h1></br>";
+            
+            var userInput = document.querySelector("#userInput");
+            var timerDisplay = document.querySelector("#startTimer");
+            
+            var cdTimer = new CountDownTimer(timeSeconds,1000);
+            
             cdTimer.onTick(function(obj){
-                var minutes = obj.minutes < 10 ? '0' + obj.minutes : obj.minutes
-                var seconds = obj.seconds < 10 ? '0' + obj.seconds : obj.seconds
-                var cdString = minutes + ":" + seconds
-                console.log(cdString);
-                timerDisplay.textContent = cdString;
+                
+                displayTime(timerDisplay, obj)
+                
                 // Time is up
                 if(obj.minutes === 0 && obj.seconds === 0) {
                     userInput.disabled = false;
                     userInput.focus();
+                    startRace();
                 }
             })
             cdTimer.start()
-            console.log("window loaded");
         }
+        
+        function displayTime(dom, timeObj) {
+            var minutes = timeObj.minutes < 10 ? '0' + timeObj.minutes : timeObj.minutes
+            var seconds = timeObj.seconds < 10 ? '0' + timeObj.seconds : timeObj.seconds
+            var cdString = minutes + ":" + seconds
+            dom.textContent = cdString;
+        }
+        
+        function displayWPM(dom, wpm) {
+            wpm = wpm < 10 ? "0"+wpm : wpm
+            dom.textContent = wpm
+        }
+        
+        function wpmCalculator(totalCharacterCount, timePassedInSeconds) {
+            //console.log("total char: "+ totalCharacterCount);
+            var totalWord = totalCharacterCount/5;
+            var WPS = totalWord/timePassedInSeconds; 
+            var WPM = WPS*60;
+            //console.log("totalWord: " + totalWord +" WPS: " + WPS + " WPM: " +WPM)
+            return WPM;
+        }
+        
+        function getTotalCharacterCount() {
+            var typedCharLength = document.querySelector("#userInput").value.length;
+            console.log("typedsCharLength: " + typedCharLength)
+            console.log("previously typed: " + paragraph.getTotalCharCountAtIndex(paragraph.getCurrentIndex()-1))
+            return paragraph.getTotalCharCountAtIndex(paragraph.getCurrentIndex()-1) + typedCharLength
+        }
+        
         function startRace() {
+            var raceBoard = document.querySelector("#raceBoard");
+            raceBoard.innerHTML = "<h2>Time left: <span id = 'raceTimer'></span></h2>"+
+                                   "<h2>WPM: <span id= 'wpm'></span></br>";
+            var raceTimeDisplay = document.querySelector("#raceTimer");
+            var wpmDisplay = document.querySelector("#wpm");
             
-        }                     
+            var cdTimer = new CountDownTimer(60,1000);
+            cdTimer.onTick(function(timeObj){
+                displayTime(raceTimeDisplay,timeObj)
+                displayWPM(wpmDisplay, 
+                           wpmCalculator(getTotalCharacterCount(), timeObj.timePassed));
+            })
+            cdTimer.start()
+        }
+        
+        /** This implementation is going to be changed in final version */
+        window.onload = function() {
+            startRaceIn(2)
+        }
+                             
         </script>
     <body>
-        <div>
-            <h1>Test start in: <span id = "startTimer"></span></h1></br>
+        <div id = "raceBoard">
+            
         </div>
         <div id = "wordContainer">
         </div>
-        <input type="text" id = "userinput" disabled = "disabled" onkeyup="inputCheck()"/>
+        <input type="text" id = "userInput" disabled = "disabled" onkeyup="inputCheck()"/>
         <script>
            document.getElementById("wordContainer").innerHTML = spanify(paragraph.getArray())
            document.getElementById("word0").setAttribute('class', 'currentWord') 
