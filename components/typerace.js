@@ -3,19 +3,30 @@ import KeyboardInput from "./keyboardinput"
 
 export default class TypeRace extends React.Component {
     constructor() {
-        super()
-        this.inputChangeHandler = this.inputChangeHandler.bind(this)
+        super();
+        this.inputChangeHandler = this.inputChangeHandler.bind(this);
+        this.state = {
+            "currentWord": "hello",
+            "isAccurate": true
+        };
     }
     
     
     inputChangeHandler(event) {
-        console.log("hello")
-        console.log(event)
+        let userInput = event.target.value;
+        if (this.state.currentWord.startsWith(userInput) && !this.state.isAccurate) {
+            this.setState({isAccurate:true});
+        }
+        else if(!this.state.currentWord.startsWith(userInput) && this.state.isAccurate) {
+            this.setState({isAccurate:false});
+        }
     }
     
     render() {
         return(
-            <KeyboardInput word = "hello" onInputChange = {this.inputChangeHandler} />
+            <KeyboardInput 
+             isAccurate = {this.state.isAccurate}
+             onChange = {this.inputChangeHandler} />
         );
     }
 }

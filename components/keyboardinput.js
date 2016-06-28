@@ -3,21 +3,10 @@ import React from "react"
 export default class KeyboardInput extends React.Component {
     constructor(props) {
         super(props);
-        this.inputChangeHandler = this.inputChangeHandler.bind(this);
-        this.state = {
-            isAccurate:true
-        };
+        //this.inputChangeHandler = this.inputChangeHandler.bind(this);
     }
     
-    inputChangeHandler(event) {
-        let userInput = event.target.value;
-        if (this.props.word.startsWith(userInput) && !this.state.isAccurate) {
-            this.setState({isAccurate:true});
-        }
-        else if(!this.props.word.startsWith(userInput) && this.state.isAccurate) {
-            this.setState({isAccurate:false});
-        }
-    }
+    
     
     render() {
         const notAccurateStyle = {
@@ -26,9 +15,9 @@ export default class KeyboardInput extends React.Component {
         
         return(
             <input 
-            style = {this.state.isAccurate ? {}:notAccurateStyle} 
+            style = {this.props.isAccurate ? {}:notAccurateStyle} 
             type = "text" 
-            onChange = {this.inputChangeHandler}>
+            onChange = {this.props.onChange}>
             </input>
         );
     }
