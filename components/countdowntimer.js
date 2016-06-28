@@ -5,7 +5,7 @@
  * Answer-by: robbmj [http://stackoverflow.com/users/2126755/robbmj] 
  */
 
-function CountDownTimer(duration, granularity) {
+export default function CountDownTimer(duration, granularity) {
   this.duration = duration;
   this.granularity = granularity || 1000;
   this.tickFtns = [];
