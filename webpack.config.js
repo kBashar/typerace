@@ -6,7 +6,7 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: ['/\.js$/', /\.es6$/],
+        test: [/\.js$/, /\.es6$/],
         exclude: /node_modules/,
         loader: "babel-loader",
         query: {
@@ -16,6 +16,6 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['','.js','es6']
+    extensions: ['','.js','.es6']
   }
 }
