@@ -4,32 +4,33 @@ export default class Paragraph {
     constructor(paragraph_text) {
          this.wordArray = paragraph_text.split(" ");
          this.currentWordIndex = 0;
-         let totalCharCountArray = [];
-         wordArray = wordArray.map((val,i) => {
-             return (i===wordArray.length-1) ? val : val + " ";
+         let totalCharCount = [];
+         this.wordArray = this.wordArray.map((val,i,array) => {
+             return (i===array.length-1) ? val : val + " ";
             });
-         wordArray.forEach(function (str, index, array) {
-             let previousCount = (index === 0) ? 0 : totalCharCountArray[index - 1];
-            totalCharCountArray.push(previousCount + str.length);
+         this.wordArray.forEach(function (str, index, array) {
+             let previousCount = (index === 0) ? 0 : totalCharCount[index - 1];
+             totalCharCount.push(previousCount + str.length);
         });
+        this.totalCharCountArray = totalCharCount; 
     }
     getTotalCharCountAtIndex(index) {
         console.log("requested for: " + index);
-        return index < 0 ? 0 : totalCharCountArray[index];
+        return index < 0 ? 0 : this.totalCharCountArray[index];
     }
     getArray() {
-        return wordArray;
+        return this.wordArray;
     }
     getCurrentIndex() {
-        return currentWordIndex;
+        return this.currentWordIndex;
     }
     getCurrentWord() {
-        return wordArray[currentWordIndex];
+        return this.wordArray[this.currentWordIndex];
     }
     hasWords() {
-        return wordArray.length - 1 > currentWordIndex
+        return this.wordArray.length - 1 > this.currentWordIndex
     }
     updateCurrentWordIndex() {
-        currentWordIndex = this.hasWords() ? currentWordIndex + 1 : -1
+        this.currentWordIndex = this.hasWords() ? this.currentWordIndex + 1 : -1
     }
 }
