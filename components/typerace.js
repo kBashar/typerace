@@ -8,6 +8,7 @@ export default class TypeRace extends React.Component {
     constructor(props) {
         super(props);
         this.inputChangeHandler = this.inputChangeHandler.bind(this);
+        this.totalAccurateCharacterTyped = 0;
         this.paragraph = this.props.paragraph;
         this.state = {
             "isUserInputAccurate": true,
@@ -17,10 +18,17 @@ export default class TypeRace extends React.Component {
     }
 
 
+
+
     inputChangeHandler(event) {
         let userInput = event.target.value;
 
-        /** extra variables are used to track the change of state and execute
+        if (this.paragraph.getCurrentWord().startsWith(userInput)) {
+            this.totalAccurateCharacterTyped = this.paragraph.getTotalCharCountAtIndex(
+                                    this.paragraph.getCurrentIndex()) + userInput.length;
+        }
+
+        /** A temp object is used to track the change of state and execute
          setState() only once per iteration */
 
         let isStateChanging = false;
@@ -42,7 +50,6 @@ export default class TypeRace extends React.Component {
             state_temp.isInputComplete = true;
             state_temp.currentWordIndex = this.paragraph.getCurrentIndex();
         }
-
         if (isStateChanging) {
            this.setState(state_temp);
         }
