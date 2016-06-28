@@ -2,15 +2,14 @@
   "name": "typerace",
   "version": "1.0.0",
   "description": "",
-  "main": "CountDownTimer.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack-dev-server"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kBashar/typerace.git"
   },
-  "author": "",
+  "author": "Khyrul Bashar",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/kBashar/typerace/issues"
