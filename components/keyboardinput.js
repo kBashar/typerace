@@ -6,8 +6,6 @@ export default class KeyboardInput extends React.Component {
         //this.inputChangeHandler = this.inputChangeHandler.bind(this);
     }
     
-    
-    
     render() {
         const notAccurateStyle = {
             backgroundColor: 'red'
