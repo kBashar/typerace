@@ -1,7 +1,8 @@
 /*jshint esversion: 6 */
 
 import React from "react";
-import KeyboardInput from "./keyboardinput"
+import KeyboardInput from "./keyboardinput";
+import TextContainer from "./textcontainer";
 
 export default class TypeRace extends React.Component {
     constructor(props) {
@@ -10,7 +11,8 @@ export default class TypeRace extends React.Component {
         this.paragraph = this.props.paragraph;
         this.state = {
             "isUserInputAccurate": true,
-            "isInputComplete": false
+            "isInputComplete": false,
+            "currentWordIndex":0
         };
     }
 
@@ -22,40 +24,42 @@ export default class TypeRace extends React.Component {
          setState() only once per iteration */
 
         let isStateChanging = false;
-        let isInputComplete_temp = this.state.isInputComplete;
-        let isUserInputAccurate_temp = this.state.isUserInputAccurate;
-
+        let state_temp = {};
+        
         if (this.state.isInputComplete) {
-          isInputComplete_temp = false;
-          isStateChanging = true;
+            isStateChanging = true;
+            state_temp.isInputComplete = false;
 
         }
         if (( this.paragraph.getCurrentWord().startsWith(userInput) && !this.state.isUserInputAccurate) ||
            (! this.paragraph.getCurrentWord().startsWith(userInput) &&  this.state.isUserInputAccurate)) {
              isStateChanging = true;
-             isUserInputAccurate_temp = !this.state.isUserInputAccurate;
+             state_temp.isUserInputAccurate = !this.state.isUserInputAccurate;
         }
         if(!this.paragraph.getCurrentWord().localeCompare(userInput)) {
-            console.log("10 points to griffindor");
             isStateChanging = true;
             this.paragraph.updateCurrentWordIndex();
-            isInputComplete_temp = true;
+            state_temp.isInputComplete = true;
+            state_temp.currentWordIndex = this.paragraph.getCurrentIndex();
         }
 
         if (isStateChanging) {
-           this.setState({
-             "isUserInputAccurate": isUserInputAccurate_temp,
-             "isInputComplete": isInputComplete_temp
-           });
+           this.setState(state_temp);
         }
     }
 
     render() {
         return(
+            <div>
+            <TextContainer
+            wordArray = {this.paragraph.getArray()}
+            currentWordIndex = {this.state.currentWordIndex}
+            />
             <KeyboardInput
              isAccurate = {this.state.isUserInputAccurate}
              isComplete = {this.state.isInputComplete}
              onChange = {this.inputChangeHandler} />
+             </div>
         );
     }
 }
