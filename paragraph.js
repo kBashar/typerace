@@ -1,13 +1,16 @@
-class Paragraph {
+/*jshint esversion: 6 */
+
+export default class Paragraph {
     constructor(paragraph_text) {
-         let wordArray = paragraph_text.split(" ");
-         let currentWordIndex = 0;
-         let prevTotalCharCount = 0;
+         this.wordArray = paragraph_text.split(" ");
+         this.currentWordIndex = 0;
          let totalCharCountArray = [];
-        wordArray.forEach(function (str, index, array) {
+         wordArray = wordArray.map((val,i) => {
+             return (i===wordArray.length-1) ? val : val + " ";
+            });
+         wordArray.forEach(function (str, index, array) {
              let previousCount = (index === 0) ? 0 : totalCharCountArray[index - 1];
-             let spaceCount = (index === (array.length - 1)) ? 0 : 1;
-            totalCharCountArray.push(previousCount + str.length + spaceCount);
+            totalCharCountArray.push(previousCount + str.length);
         });
     }
     getTotalCharCountAtIndex(index) {
