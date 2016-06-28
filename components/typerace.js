@@ -13,12 +13,10 @@ export default class TypeRace extends React.Component {
         this.state = {
             "isUserInputAccurate": true,
             "isInputComplete": false,
-            "currentWordIndex":0
+            "currentWordIndex": 0,
+            "wpm" : 0
         };
     }
-
-
-
 
     inputChangeHandler(event) {
         let userInput = event.target.value;
