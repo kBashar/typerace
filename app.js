@@ -6,6 +6,6 @@ import TypeRace from "./components/typerace";
 import Paragraph from "./paragraph";
 
 
-var paragraph = new Paragraph("The difference is scoping. var is scoped to the nearest function block and let is scoped to the nearest enclosing block");
+var paragraph = new Paragraph("The difference is scoping. var is scoped to me");
 ReactDOM.render(<TypeRace paragraph = {paragraph} />, document.getElementById("root"));
 

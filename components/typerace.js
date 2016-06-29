@@ -14,6 +14,7 @@ export default class TypeRace extends React.Component {
         this.racetimehandler = this.racetimehandler.bind(this);
         this.totalAccurateCharacterTyped = 0;
         this.paragraph = this.props.paragraph;
+        this.racetimeObj;
         this.state = {
             "isUserInputAccurate": true,
             "isInputComplete": false,
@@ -36,8 +37,16 @@ export default class TypeRace extends React.Component {
     }
 
     racetimehandler(obj) {
-        let wpm = this.wpmCalculator(this.totalAccurateCharacterTyped, obj.timePassed)
-        this.setState({ 'wpm': wpm, 'racetime': obj.seconds })
+        /**
+         * Calculate wpm only if there are words yet to typed.
+         */
+        if (this.paragraph.hasWords()) {
+            let wpm = this.wpmCalculator(obj.timePassed)
+            this.setState({ 'wpm': wpm, 'racetime': obj.seconds })
+        }
+        else {
+            this.setState({'racetime': obj.seconds })
+        }
     }
 
     /**
@@ -45,34 +54,45 @@ export default class TypeRace extends React.Component {
          */
     startRaceIn(timeSeconds) {
         var cdTimer = new CountDownTimer(timeSeconds, 1000);
-        cdTimer.onTick(this.countdownhandler)
-        cdTimer.start()
+        cdTimer.onTick(this.countdownhandler);
+        cdTimer.start();
     }
 
     startRace() {
         this.setState({ 'headertype': 'scoreboard' })
-        var cdTimer = new CountDownTimer(60, 1000);
-        cdTimer.onTick(this.racetimehandler)
-        cdTimer.start()
+        this.racetimeObj = new CountDownTimer(60, 1000);
+        this.racetimeObj.onTick(this.racetimehandler);
+        this.racetimeObj.start();
     }
 
     componentDidMount() {
         this.startRaceIn(this.state.countdowntime)
     }
 
-    wpmCalculator(totalCharacterCount, timePassedInSeconds) {
-        var totalWord = totalCharacterCount / 5;
-        var WPS = totalWord / timePassedInSeconds;
-        var WPM = Math.round(WPS * 60);
-        return WPM;
+    wpmCalculator(timePassedInSeconds) {
+        if (this.totalAccurateCharacterTyped > 0) {
+            var totalWord = this.totalAccurateCharacterTyped / 5;
+            var WPS = totalWord / timePassedInSeconds;
+            var WPM = Math.round(WPS * 60);
+            return WPM;
+        }
+        return 0;
     }
 
     inputChangeHandler(event) {
+        if (!this.paragraph.hasWords()) {
+            return;
+        }
         let userInput = event.target.value;
 
+        /**
+         * If an accurate character is typed change the total accurate character typed
+         * count and set new wpm. 
+         */
         if (this.paragraph.getCurrentWord().startsWith(userInput)) {
             this.totalAccurateCharacterTyped = this.paragraph.getTotalCharCountAtIndex(
                 this.paragraph.getCurrentIndex()) + userInput.length;
+            this.setState({"wpm": this.wpmCalculator(this.racetimeObj.timePassed())});
         }
 
         /** A temp object is used to track the change of state and execute
@@ -92,6 +112,10 @@ export default class TypeRace extends React.Component {
             state_temp.isUserInputAccurate = !this.state.isUserInputAccurate;
         }
         if (!this.paragraph.getCurrentWord().localeCompare(userInput)) {
+
+            /**
+             * When user input match desiered word we have to change states for new word.
+             */
             isStateChanging = true;
             this.paragraph.updateCurrentWordIndex();
             state_temp.isInputComplete = true;

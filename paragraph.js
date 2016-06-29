@@ -28,9 +28,10 @@ export default class Paragraph {
         return this.wordArray[this.currentWordIndex];
     }
     hasWords() {
-        return this.wordArray.length - 1 > this.currentWordIndex
+        return this.getCurrentIndex() !== -1;
     }
     updateCurrentWordIndex() {
-        this.currentWordIndex = this.hasWords() ? this.currentWordIndex + 1 : -1
+        let hasWords = this.wordArray.length -1 > this.currentWordIndex;
+        this.currentWordIndex = hasWords ? this.currentWordIndex + 1 : -1
     }
 }

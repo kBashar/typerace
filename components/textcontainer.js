@@ -20,7 +20,11 @@ export default class TextContainer extends React.Component {
 
     return this.props.wordArray.map(function (word, index) {
       let style;
-      if (currentWordIndex === index) {
+      //all words are typed
+      if(currentWordIndex === -1) {
+        style = doneStyle;
+      }
+      else if (currentWordIndex === index) {
         style = currentStyle;
       }
       else if (index < currentWordIndex) {

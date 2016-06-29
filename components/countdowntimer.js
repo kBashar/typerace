@@ -10,18 +10,23 @@ export default function CountDownTimer(duration, granularity) {
   this.granularity = granularity || 1000;
   this.tickFtns = [];
   this.running = false;
+  this.startTime;
 }
 
 CountDownTimer.prototype.start = function() {
   if (this.running) {
     return;
   }
-  this.running = true; 
-  var start = Date.now(),
+  this.running = true;
+  this.startTime = Date.now(); 
+  var start = this.startTime,
       that = this,
       diff, obj, timePassed;
 
   (function timer() {
+    if(!that.running) {
+      return;
+    }
     diff = that.duration - (((Date.now() - start) / 1000) | 0);
     timePassed = (((Date.now() - start) / 1000) | 0);
 
@@ -50,6 +55,14 @@ CountDownTimer.prototype.onTick = function(ftn) {
 CountDownTimer.prototype.expired = function() {
   return !this.running;
 };
+
+CountDownTimer.prototype.stop = function() {
+  this.running = false;
+}
+
+CountDownTimer.prototype.timePassed = function() {
+  return (((Date.now() - this.startTime) / 1000) | 0)
+}
 
 CountDownTimer.parse = function(seconds) {
   return {
