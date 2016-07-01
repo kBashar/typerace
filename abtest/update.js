@@ -10,12 +10,10 @@ var ref = new Appbase({
 
 var reqObj = {
     type: "race",
-    id: "race1",
+    id: "AVWmUU55LozDpnHtfV6y",
     body:{
         doc:{
-            pid2: {
-                wpm: 81
-            }
+            race_state: "running",
         }
     }
 }

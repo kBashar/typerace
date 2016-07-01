@@ -10,7 +10,7 @@ var ref = new Appbase({
 
 ref.getStream({
     type:"race",
-    id:"race1",
+    id:"AVWn4H9DLozDpnHtfWmN",
 }).on("data", function(res){
     print(res);
 }).on("error", function(err) {

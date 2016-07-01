@@ -1,5 +1,5 @@
 module.exports = {
-  entry: "./app.js",
+  entry: "./abtest/racecontroller.js",
   output: {
     filename: "bundle.js"
   },
@@ -14,7 +14,7 @@ module.exports = {
   ],
     loaders: [
       {
-        test: [/\.js$/, /\.es6$/],
+        test: [/\.es6$/],
         exclude: /node_modules/,
         loader: "babel-loader",
         query: {

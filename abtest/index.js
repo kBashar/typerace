@@ -14,14 +14,6 @@ var jsonBody = {
   "pid1",
   "pid2"
  ],
- "pid1": {
-  "wpm": 12,
-  "accuracy": 89
- },
- "pid2": {
-  "wpm": 34,
-  "accuracy": "nan"
- }
 }
 
 obj = ref.index({

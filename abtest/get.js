@@ -10,12 +10,13 @@ var ref = new Appbase({
 
 obj = ref.get({
     type:"race",
-    id:"race1",
+    id:"AVWmEh6iCOcYhpO26N5r",
 })
 
 obj.on("data", function(res){
-    print(res);
+    print(res); 
 })
+
 obj.on("error", function(err) {
-    print(err)
+    print(err);
 })
