@@ -3,9 +3,7 @@ import CountDownTimer from './countdowntimer';
 
 export default class Race {
     constructor(onRaceRunning, onScoreUpdate) {
-        var Appbase = require('appbase-js');
-
-        this.userID = getUserID();
+        this.userID = ("pid_" + Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
         this.raceStartsAt;
         this.race_id;
         this.race_obj;
@@ -13,7 +11,7 @@ export default class Race {
         this.onScoreUpdate = onScoreUpdate;
         this.participantsList = {};
 
-        var ref = new Appbase({
+        this.ref = new Appbase({
             url: 'https://scalr.api.appbase.io',
             appname: 'typerace',
             username: 'LPg0IVqja',
@@ -22,24 +20,29 @@ export default class Race {
     }
 
     connectForRace() {
-        checkWaitingRaceExists();
+        console.log("@ connectForRace: function");
+        this.checkWaitingRaceExists();
     }
 
     onWaitingRaceAvailable(res) {
-        if (res.hits.total) {
+        console.log("@ onWaitingRaceAvailable: func");
+        if (res.hits.total>0) {
             console.log("@ onWaitingRaceAvailable: " + res.hits.total + " race is available.");
             this.race_obj = res.hits.hits[0]._source;
             this.race_id = res.hits.hits[0]._id;
             console.log("@ onWaitingRaceAvailable: " + "ID of the race is " + this.race_id);
-            updateRaceStatusToRunning(this.race_id, race_obj);
+            this.updateRaceStatusToRunning(this.race_id, this.race_obj);
         }
         else {
-            createNewRace();
+            console.log("call for new race");
+            // There is no waiting race available. So create one.
+            this.createNewRace();
         }
     };
 
     checkWaitingRaceExists() {
-        obj = ref.search({
+        console.log("@ checkWaitingRaceExists: function");
+        var obj = this.ref.search({
             type: "race",
             body: {
                 query: {
@@ -50,7 +53,7 @@ export default class Race {
             }
         });
 
-        obj.on("data", onWaitingRaceAvailable)
+        obj.on("data", this.onWaitingRaceAvailable)
         obj.on("error", function (err) {
             console.log("@ checkWaitingRaceExists: " + "Error while checking Waiting race"
                 + " existence, error message: " + err)
@@ -58,14 +61,15 @@ export default class Race {
     };
 
     createNewRace() {
+        console.log("@ createNewRace: func");
         var jsonBody = {
             race_state: "waiting",
             participants: [
-                userID
+                this.userID
             ]
         }
 
-        var obj = ref.index({
+        var obj = this.ref.index({
             type: "race",
             body: jsonBody
         });
@@ -75,7 +79,7 @@ export default class Race {
             console.log("@ createNewRace: " + "New race creation is successful, race ID is " + this.race_id);
             console.log("@ createNewRace: " + "To retrive race object for race ID " + this.race_id
                 + " getRaceObj is called.");
-            getRaceObj(this.race_id, listenForUpdate)
+            this.getRaceObj(this.race_id, this.listenForUpdate)
         });
 
         obj.on("error", function (res) {
@@ -84,7 +88,7 @@ export default class Race {
     };
 
     getRaceObj(race_id, callback) {
-        var obj = ref.get({
+        var obj = this.ref.get({
             "type": "race",
             "id": race_id
         });
@@ -110,7 +114,7 @@ export default class Race {
     }
 
     updateRaceStatusToRunning(race_id, raceObj) {
-
+        debugger;
         // Add this user as new race participants.
         raceObj.participants.push(userID);
         console.log("@ updateRaceStatusToRunning: " + " user IDs of the participants " + raceObj.participants);
@@ -132,7 +136,7 @@ export default class Race {
             }
         }
 
-        var obj = ref.update(updatedRaceObj);
+        var obj = this.ref.update(updatedRaceObj);
         obj.on("data", function (res) {
             console.log("@ updateRaceStatusToRunning: " + " Data updating succesful.");
             //to avoid another call to appbase, here a clone of 
@@ -153,35 +157,29 @@ export default class Race {
         });
     };
 
-    getUserID() {
-        return ("pid_" + Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
-    };
-
-    compareObject(previous, present) {
-        var diff = {};
-        for (var property in present) {
-            if (!previous.hasOwnProperty(property) || present[property] !== previous[property]) {
-                diff[property] = present[property];
-            }
-        }
-        return diff;
-    };
-
     listenForUpdate(race_id, race_obj) {
         console.log("@ listenForUpdate : We are at  function.");
-        previous_obj = race_obj;
-        stream_obj = ref.getStream({
+        var previous_obj = race_obj;
+        var stream_obj = this.ref.getStream({
             type: "race",
             id: race_id,
         });
         stream_obj.on("data", function (res) {
             present_obj = res._source;
             console.log("@ listenForUpdate success");
-            let diff = compareObject(previous_obj, present_obj);
+            let diff = (previous_obj, present_obj) => {
+                let diff = {};
+                for (var property in present) {
+                    if (!previous.hasOwnProperty(property) || present[property] !== previous[property]) {
+                        diff[property] = present[property];
+                    }
+                }
+                return diff;
+            };
             console.log("@ listenForUpdate success : changed properties: " + diff);
             for (property in diff) {
                 if (property.startsWith("race_state")) {
-                    populateParticipantsList(present_obj);
+                    this.populateParticipantsList(present_obj);
                     this.onRaceRunning(present_obj);
                     //onRaceStatusUpdate(previous_obj);
                 }
@@ -210,7 +208,7 @@ export default class Race {
             wpm: wpm,
             last_updated_at: time
         }
-        var obj = ref.update(updatedRaceObj);
+        var obj = this.ref.update(updatedRaceObj);
         obj.on('data', function (res) {
             console.log(userID + " updated wpm is " + wpm + " at " + (new Date(time)).getTime());
         });
