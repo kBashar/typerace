@@ -17,9 +17,10 @@ checkWaitingRaceExists();
 
 function onWaitingRaceAvailable(res) {
     if (res.hits.total) {
+        print("@ onWaitingRaceAvailable: " + res.hits.total + " race is available.");
         race_obj = res.hits.hits[0]._source;
         race_id = res.hits.hits[0]._id;
-        print(race_id);
+        print("@ onWaitingRaceAvailable: " + "ID of the race is " + race_id);
         updateRaceStatusToRunning(race_id, race_obj);
     }
     else {
@@ -44,7 +45,10 @@ function checkWaitingRaceExists() {
     });
 
     obj.on("data", onWaitingRaceAvailable)
-    obj.on("error", onWaitingRaceNotAvailable)
+    obj.on("error", function(err){
+        print("@ checkWaitingRaceExists: " + "Error while checking Waiting race"
+         + " existence, error message: "+ err)
+    });
 };
 
 function createNewRace() {
@@ -61,14 +65,15 @@ function createNewRace() {
     });
 
     obj.on("data", function (res) {
-        print("new race created: " + JSON.stringify(res));
         race_id = res._id;
+        print("@ createNewRace: " + "New race creation is successful, race ID is " + race_id);
+        print("@ createNewRace: " + "To retrive race object for race ID " + race_id 
+        + " getRaceObj is called.");
         getRaceObj(race_id, listenForUpdate)
     });
 
     obj.on("error", function (res) {
-        print("On error response: " + res);
-        return false;
+        print("@ createNewRace: " + "Error happend while creating new Race, error message: " + err);
     });
 };
 
@@ -82,19 +87,20 @@ function getRaceObj(race_id, callback) {
         callback(race_id, race_obj);
     });
     obj.on("error", function (err) {
-        print("While fetching data error occured: " + err);
+        print("@ getRaceObj: " + "Retriving race object for race ID " 
+        + race_id +" is unsuccessful, error messeage: " + err);
     });
 };
 
 function updateRaceStatusToRunning(race_id, raceObj) {
     // Add this user as new race participants.
     raceObj.participants.push(userID);
-    print(raceObj.participants);
+    print("@ updateRaceStatusToRunning: " +" user IDs of the participants "+ raceObj.participants);
     /**
      * Race will start in next 10 seconds;
      */
 
-    let raceStartsAt = Date.now()+(12*1000);
+    let raceStartsAt = Date.now()+(7*1000);
 
     var updatedRaceObj = {
         type: "race",
@@ -110,17 +116,22 @@ function updateRaceStatusToRunning(race_id, raceObj) {
 
     var obj = ref.update(updatedRaceObj);
     obj.on("data", function (res) {
+        print("@ updateRaceStatusToRunning: " +" Data updating succesful.");
         //to avoid another call to appbase, here a clone of 
         //the object is made.
 
         raceObj.participants = raceObj.participants;
         raceObj.race_starts_At = raceStartsAt;
         raceObj.race_state = "running";
+
+        print("@ updateRaceStatusToRunning: " +" To listen for later updates listenForUpdate is called.");
         listenForUpdate(race_id, raceObj);
+
+        print("@ updateRaceStatusToRunning: " +" To start race startRaceIn is called.");
         startRaceIn(raceStartsAt);
     });
     obj.on("error", function (err) {
-        print(err)
+        print("@ updateRaceStatusToRunning: " +"Error at updating, error message: "+ err);
     });
 };
 
@@ -139,13 +150,12 @@ function onRaceStatusUpdate(raceObj) {
 
 function startRaceIn(raceStartsAt) {
     var timeDifference = Math.ceil((raceStartsAt - Date.now())/1000);
-    print("Race will start in : " + timeDifference + "seconds");
+    print("@ startRaceIn: " + "Race will start in " + timeDifference + "seconds");
     var countdowntimer = new CountDownTimer(timeDifference, 1000);
     countdowntimer.onTick(function(obj) {
-        print("Race starts in: " + obj.seconds);
+        print("@ startRaceIn: " +"Race starts in: " + obj.seconds);
         if (obj.minutes === 0 && obj.seconds === 0) {
-            //userInput.disabled = false;
-            //userInput.focus();
+            print("@ startRaceIn: " +"Count down time is over startRace() is called.")
             startRace();
         }
     });
@@ -158,16 +168,15 @@ function startRace() {
         updateWPM(race_id, randomWPMGenarator(), Date.now())
         print("Race time left : " + obj.seconds + "seconds");
         if (obj.minutes === 0 && obj.seconds === 0) {
-            //userInput.disabled = false;
-            //userInput.focus();
-            print("race finished");
+            print("@ startRace: " +"race is finished.");
         }
     });
     countdowntimer.start();
+    print("@ startRace: " +"race count down started.")
 };
 
 function onScoreUpdate(raceObj) {
-    print("Score changed");
+    print("Score changed: " + JSON.stringify(raceObj));
 };
 
 function compareObject(previous, present) {
@@ -181,7 +190,7 @@ function compareObject(previous, present) {
 };
 
 function listenForUpdate(race_id, race_obj) {
-    print("We are at listenForUpdate func");
+    print("@ listenForUpdate : We are at  function.");
     previous_obj = race_obj;
     stream_obj = ref.getStream({
         type: "race",
@@ -189,9 +198,10 @@ function listenForUpdate(race_id, race_obj) {
     });
     stream_obj.on("data", function (res) {
         present_obj = res._source;
+        print("@ listenForUpdate success");
         let diff = compareObject(previous_obj, present_obj);
         previous_obj = present_obj;
-        print("difference: " + JSON.stringify(diff));
+        print("@ listenForUpdate success : changed properties: " + diff);
         for (property in diff) {
             if (property.startsWith("race_state")) {
                 onRaceStatusUpdate(previous_obj);
@@ -202,7 +212,7 @@ function listenForUpdate(race_id, race_obj) {
         }
     });
     stream_obj.on("error", function (err) {
-        print(err);
+        print("@ listenForUpdate: " +"Error at listening for updates, error message: "+ err);
     });
 };
 
@@ -230,7 +240,7 @@ function updateWPM(race_id, wpm, time) {
        print(userID + " updated wpm is "+ wpm + " at " + (new Date(time)).getTime());
    });
    obj.on('error', function(err) {
-       print(err);
+       print("@ updateWPM: " +"Error at updateWPM, error message: "+ err);
    });
 }
 
