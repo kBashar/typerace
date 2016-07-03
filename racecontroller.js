@@ -7,6 +7,7 @@ var race_id;
 var race_obj;
 var onRaceStatusUpdate;
 var onScoreUpdate;
+var participants = {};
 
 var ref = new Appbase({
     url: 'https://scalr.api.appbase.io',
@@ -160,21 +161,45 @@ function listenForUpdate(race_id, race_obj) {
         let present_obj = res._source;
         console.log("@ listenForUpdate success");
         let diff = compareObject(previous_obj, present_obj);
-        previous_obj = present_obj;
-        console.log("@ listenForUpdate success : changed properties: " + diff);
+        console.log("@ listenForUpdate success : changed properties: ");
+        console.log(diff);
         for (let property in diff) {
             if (property.startsWith("race_state")) {
-                onRaceStatusUpdate(previous_obj);
+                mapParticipants(present_obj.participants)
+                onRaceStatusUpdate(diff);
             }
             else if (property.startsWith("PID")) {
-                onScoreUpdate(diff[property]);
+                onScoreUpdate(createScoreObj(diff));
             }
         }
+        previous_obj = present_obj;
     });
     stream_obj.on("error", function (err) {
         console.log("@ listenForUpdate: " +"Error at listening for updates, error message: "+ err);
     });
 };
+
+function createScoreObj(obj) {
+    let scoreObj = {};
+    for(let prop in obj) {
+        if(prop.startsWith("PID")) {
+            scoreObj[participants[prop]] = obj[prop];
+        }
+    }
+    return scoreObj;
+}
+
+function mapParticipants(pidArray) {
+    let counter = 1;
+    for (let pid in pidArray) {
+        if(!pid.localeCompare(userID)) {
+            participants[pid] = 'self';
+        }
+        else {
+            participants[pid] ='oponent' + counter;
+        }
+    }
+}
 
 exports.updateWPM = function(wpm, time) {
 

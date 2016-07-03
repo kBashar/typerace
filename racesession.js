@@ -55,9 +55,8 @@ export default class RaceSession extends React.Component {
     };
 
     onScoreUpdate(scoreObj) {
-        for (var pid in scoreObj) {
-            console.log("Score changed of " + this.race.participants[pid] + "to "
-                + pid.wpm + " @ " + pid.last_updated_at);
+        for (let prop in scoreObj) {
+            console.log(scoreObj[prop]);
         }
     };
 
