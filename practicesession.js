@@ -17,9 +17,13 @@ export default class PracticeSession extends React.Component {
         this.state = {
             "headertype": "countdown",
             "countdowntime": 5,
+            "isInputActive": false,
             "racetime": 60,
-            "wpm": 0,
-            "isInputActive":false,
+            "scoreObj": {
+                'self': {
+                    wpm: 0
+                }
+            }
         };
     }
 
@@ -39,7 +43,14 @@ export default class PracticeSession extends React.Component {
          */
         if (this.paragraph.hasWords()) {
             let wpm = this.wpmCalculator(obj.timePassed)
-            this.setState({ 'wpm': wpm, 'racetime': obj.seconds })
+            this.setState({
+                "scoreObj": {
+                    self: {
+                        'wpm': wpm,
+                        'last_updated_at': Date.now()
+                    }
+                }, 'racetime': obj.seconds
+            })
         }
         else {
             this.setState({ 'racetime': obj.seconds })
@@ -59,7 +70,7 @@ export default class PracticeSession extends React.Component {
         this.setState({ 'headertype': 'scoreboard' })
         this.racetimeObj.onTick(this.racetimehandler);
         this.racetimeObj.start();
-        this.setState({"isInputActive":true})
+        this.setState({ "isInputActive": true })
     }
 
     componentDidMount() {
@@ -80,7 +91,16 @@ export default class PracticeSession extends React.Component {
         this.totalAccurateCharacterTyped = totalCharacterTyped;
         let timePassed = this.racetimeObj.timePassed();
         let wpm = this.wpmCalculator(this.racetimeObj.timePassed());
-        this.setState({"wpm": wpm})
+        this.setState(
+            {
+                "scoreObj": {
+                    "self": {
+                        'wpm': wpm,
+                        'last_updated_at': Date.now()
+                    }
+                }
+            }
+        );
     }
 
     render() {
@@ -90,11 +110,11 @@ export default class PracticeSession extends React.Component {
                     headertype = {this.state.headertype}
                     countdowntime = {this.state.countdowntime}
                     racetime = {this.state.racetime}
-                    wpm = {this.state.wpm}
+                    scoreObj = {this.state.scoreObj}
                     />
                 <TextPane
                     isActive = {this.state.isInputActive}
-                    paragraph = {this.paragraph} 
+                    paragraph = {this.paragraph}
                     onAccurateCharacterTyped = {this.onAccurateCharacterTyped} />
             </div>
         );

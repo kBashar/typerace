@@ -17,7 +17,7 @@ var ref = new Appbase({
 });
 
 
-exports.startRace = function(statusUpdatehandler, scoreUpdateHandler) {
+exports.startRace = function (statusUpdatehandler, scoreUpdateHandler) {
     onRaceStatusUpdate = statusUpdatehandler;
     onScoreUpdate = scoreUpdateHandler;
 
@@ -56,9 +56,9 @@ function checkWaitingRaceExists() {
     });
 
     obj.on("data", onWaitingRaceAvailable)
-    obj.on("error", function(err){
+    obj.on("error", function (err) {
         console.log("@ checkWaitingRaceExists: " + "Error while checking Waiting race"
-         + " existence, error message: "+ err)
+            + " existence, error message: " + err)
     });
 };
 
@@ -78,8 +78,8 @@ function createNewRace() {
     obj.on("data", function (res) {
         race_id = res._id;
         console.log("@ createNewRace: " + "New race creation is successful, race ID is " + race_id);
-        console.log("@ createNewRace: " + "To retrive race object for race ID " + race_id 
-        + " getRaceObj is called.");
+        console.log("@ createNewRace: " + "To retrive race object for race ID " + race_id
+            + " getRaceObj is called.");
         getRaceObj(race_id, listenForUpdate)
     });
 
@@ -98,22 +98,22 @@ function getRaceObj(race_id, callback) {
         callback(race_id, race_obj);
     });
     obj.on("error", function (err) {
-        console.log("@ getRaceObj: " + "Retriving race object for race ID " 
-        + race_id +" is unsuccessful, error messeage: " + err);
+        console.log("@ getRaceObj: " + "Retriving race object for race ID "
+            + race_id + " is unsuccessful, error messeage: " + err);
     });
 };
 
 function updateRaceStatusToRunning(race_id, raceObj) {
-    console.log("@ updateRaceStatusToRunning: " +" To listen for later updates listenForUpdate is called.");
+    console.log("@ updateRaceStatusToRunning: " + " To listen for later updates listenForUpdate is called.");
     listenForUpdate(race_id, raceObj);
     // Add this user as new race participants.
     raceObj.participants.push(userID);
-    console.log("@ updateRaceStatusToRunning: " +" user IDs of the participants "+ raceObj.participants);
+    console.log("@ updateRaceStatusToRunning: " + " user IDs of the participants " + raceObj.participants);
     /**
      * Race will start in next 10 seconds;
      */
 
-    let raceStartsAt = Date.now()+(7*1000);
+    let raceStartsAt = Date.now() + (7 * 1000);
 
     var updatedRaceObj = {
         type: "race",
@@ -129,10 +129,10 @@ function updateRaceStatusToRunning(race_id, raceObj) {
 
     var obj = ref.update(updatedRaceObj);
     obj.on("data", function (res) {
-        console.log("@ updateRaceStatusToRunning: " +" Data updating succesful.");
+        console.log("@ updateRaceStatusToRunning: " + " Data updating succesful.");
     });
     obj.on("error", function (err) {
-        console.log("@ updateRaceStatusToRunning: " +"Error at updating, error message: "+ err);
+        console.log("@ updateRaceStatusToRunning: " + "Error at updating, error message: " + err);
     });
 };
 
@@ -175,14 +175,15 @@ function listenForUpdate(race_id, race_obj) {
         previous_obj = present_obj;
     });
     stream_obj.on("error", function (err) {
-        console.log("@ listenForUpdate: " +"Error at listening for updates, error message: "+ err);
+        console.log("@ listenForUpdate: " + "Error at listening for updates, error message: " + err);
     });
 };
 
 function createScoreObj(obj) {
     let scoreObj = {};
-    for(let prop in obj) {
-        if(prop.startsWith("PID")) {
+    for (let prop in obj) {
+        if (prop.startsWith("PID") && prop.localeCompare(userID)) {
+            console.log(participants[prop]);
             scoreObj[participants[prop]] = obj[prop];
         }
     }
@@ -191,36 +192,40 @@ function createScoreObj(obj) {
 
 function mapParticipants(pidArray) {
     let counter = 1;
-    for (let pid in pidArray) {
-        if(!pid.localeCompare(userID)) {
+    for (let i =0; i<pidArray.length; i++ ) {
+        let pid = pidArray[i];
+        console.log(pid);
+        if (!pid.localeCompare(userID)) {
             participants[pid] = 'self';
         }
         else {
-            participants[pid] ='oponent' + counter;
+            participants[pid] = 'oponent' + counter;
+            console.log("participants " + participants[pid]);
+            counter++;
         }
     }
 }
 
-exports.updateWPM = function(wpm, time) {
+exports.updateWPM = function (wpm, time) {
 
     var updatedRaceObj = {
         type: "race",
         id: race_id,
         body: {
             doc: {
-                
+
             }
         }
     }
-    updatedRaceObj.body.doc[userID] ={
-                    wpm : wpm,
-                    last_updated_at: time
-                }
-   var obj = ref.update(updatedRaceObj);
-   obj.on('data', function(res) {
-       console.log(userID + " updated wpm is "+ wpm + " at " + (new Date(time)).getTime());
-   });
-   obj.on('error', function(err) {
-       console.log("@ updateWPM: " +"Error at updateWPM, error message: "+ err);
-   });
+    updatedRaceObj.body.doc[userID] = {
+        wpm: wpm,
+        last_updated_at: time
+    }
+    var obj = ref.update(updatedRaceObj);
+    obj.on('data', function (res) {
+        console.log(userID + " updated wpm is " + wpm + " at " + (new Date(time)).getTime());
+    });
+    obj.on('error', function (err) {
+        console.log("@ updateWPM: " + "Error at updateWPM, error message: " + err);
+    });
 }
