@@ -1,6 +1,4 @@
-import React from "react";
-
-export default class CountDownPanel extends React.Component {
+class CountDownPanel extends React.Component {
     constructor(props) {
         super(props)
     }
@@ -9,7 +7,7 @@ export default class CountDownPanel extends React.Component {
         let time = this.props.time < 10 ? '0' + this.props.time : this.props.time
         return (
             <div>
-                <h2>Time left {time} seconds</h2>
+                <h2>{this.props.log} {time} seconds</h2>
             </div>
         );
     }

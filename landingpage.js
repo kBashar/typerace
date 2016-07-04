@@ -1,5 +1,4 @@
 import React from "react";
-import PracticeSession from "./practicesession"
 import RaceSession from "./racesession"
 
 export default class Landingpage extends React.Component {
@@ -21,19 +20,22 @@ export default class Landingpage extends React.Component {
 
     render() {
         if (!this.state.page.localeCompare("practice")) {
-            return <PracticeSession />
+            return <RaceSession matchType = "practice" />
         }
         else if (!this.state.page.localeCompare("race")) {
-            return <RaceSession />;
+            return <RaceSession matchType = "race" />;
         }
         else {
             return (<div>
-                <div onClick = {this.practiceClicked}>
+                <div>
+                <button onClick = {this.practiceClicked}>
                     <h2>Practice</h2>
+                </button>
                 </div>
-                <div onClick={this.raceClicked}>
-                    <h2>Race</h2>
-                </div>
+                <div>
+                <button onClick={this.raceClicked}>
+                    <h2>Race</h2> </button>
+                    </div>
             </div>);
         }
     }

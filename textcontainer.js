@@ -34,6 +34,7 @@ export default class TextContainer extends React.Component {
         style = regularStyle;
       }
       return (<span
+        className='textSpan'
         style = {style}
         key={index}>{word}
       </span>)

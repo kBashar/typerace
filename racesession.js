@@ -12,14 +12,17 @@ export default class RaceSession extends React.Component {
         super(props);
         this.onRaceStatusUpdate = this.onRaceStatusUpdate.bind(this);
         this.onScoreUpdate = this.onScoreUpdate.bind(this);
-        this.race = require("./racecontroller");
+        if (!this.props.matchType.localeCompare("race")) {
+            this.race = require("./racecontroller");
+        }
         this.onAccurateCharacterTyped = this.onAccurateCharacterTyped.bind(this);
         this.countdownhandler = this.countdownhandler.bind(this);
         this.racetimehandler = this.racetimehandler.bind(this);
-        this.paragraph = new Paragraph("The difference is scoping. var is scoped to me");
+        this.paragraph = new Paragraph("I'm lost in the middle of my birthday. I want my friends, their touch, with the earth's last love. I will take life's final offering, I will take the human's last blessing. Today my sack is empty. I have given completely whatever I had to give. In return if I receive anything—some love, some forgiveness—then I will take it with me when I step on the boat that crosses to the festival of the wordless end.");
         this.totalAccurateCharacterTyped = 0;
         this.racetimeObj = new CountDownTimer(60, 1000);;
         this.state = {
+            "race_state": "waiting",
             "headertype": "countdown",
             "countdowntime": 5,
             "isInputActive": false,
@@ -31,7 +34,12 @@ export default class RaceSession extends React.Component {
     }
 
     componentDidMount() {
-        this.race.startRace(this.onRaceStatusUpdate, this.onScoreUpdate);
+        if (this.race) {
+            this.race.startRace(this.onRaceStatusUpdate, this.onScoreUpdate);
+        }
+        else {
+            this.startRaceIn(5);
+        }
     }
 
     onRaceStatusUpdate(raceObj) {
@@ -85,16 +93,21 @@ export default class RaceSession extends React.Component {
 
     startRaceIn(timeDifference) {
         console.log("@ startRaceIn: " + "Race will start in " + timeDifference + "seconds");
+        this.setState({ "race_state": "about_to_start" });
         var countdowntimer = new CountDownTimer(timeDifference, 1000);
         countdowntimer.onTick(this.countdownhandler);
         countdowntimer.start();
     }
 
     startRace() {
-        this.setState({ 'headertype': 'scoreboard' })
         this.racetimeObj.onTick(this.racetimehandler);
         this.racetimeObj.start();
-        this.setState({ "isInputActive": true })
+        this.setState({ 
+            "race_state": "running",
+            'headertype': 'scoreboard',
+            "isInputActive": true
+
+         });
 
         console.log("@ startRace: " + "race count down started.")
     };
@@ -140,19 +153,44 @@ export default class RaceSession extends React.Component {
     }
 
     render() {
+        if (!this.state.race_state.localeCompare("running")) {
+            return (
+                <div>
+                    <HeaderPanel
+                        headertype = {this.state.headertype}
+                        countdowntime = {this.state.countdowntime}
+                        racetime = {this.state.racetime}
+                        selfScore = {this.state.selfScore}
+                        oponentsScore = {this.state.oponentsScore}
+                        />
+                    <TextPane
+                        isActive = {this.state.isInputActive}
+                        paragraph = {this.paragraph}
+                        onAccurateCharacterTyped = {this.onAccurateCharacterTyped} />
+                </div>
+            );
+        }
+        else if (!this.state.race_state.localeCompare("about_to_start")) {
+            return (
+                <WaitingView log = {"Race starts in " + this.state.countdowntime + " seconds"} />
+            );
+        }
+        else {
+            return (
+                <WaitingView log = "Waiting for user" />
+            );
+        }
+    }
+}
+
+class WaitingView extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render() {
         return (
-            <div>
-                <HeaderPanel
-                    headertype = {this.state.headertype}
-                    countdowntime = {this.state.countdowntime}
-                    racetime = {this.state.racetime}
-                    selfScore = {this.state.selfScore}
-                    oponentsScore = {this.state.oponentsScore}
-                    />
-                <TextPane
-                    isActive = {this.state.isInputActive}
-                    paragraph = {this.paragraph}
-                    onAccurateCharacterTyped = {this.onAccurateCharacterTyped} />
+            <div >
+                <h2 id="log"> {this.props.log} </h2>
             </div>
         );
     }
