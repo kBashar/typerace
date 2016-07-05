@@ -20515,7 +20515,7 @@
 	        _this.onAccurateCharacterTyped = _this.onAccurateCharacterTyped.bind(_this);
 	        _this.countdownhandler = _this.countdownhandler.bind(_this);
 	        _this.racetimehandler = _this.racetimehandler.bind(_this);
-	        _this.paragraph = new _paragraph2.default("I'm lost in the middle of my birthday. I want my friends, their touch, with the earth's last love. I will take life's final offering, I will take the human's last blessing. Today my sack is empty. I have given completely whatever I had to give. In return if I receive anything—some love, some forgiveness—then I will take it with me when I step on the boat that crosses to the festival of the wordless end.");
+	        _this.paragraph = new _paragraph2.default("I'm lost in the middle of my birthday. I want my friends, their touch, with the earth's last love. I will take life's final offering, I will take the human's last blessing. Today my sack is empty. I have given completely whatever I had to give. In return if I receive anything some love, some forgiveness then I will take it with me when I step on the boat that crosses to the festival of the wordless end.");
 	        _this.totalAccurateCharacterTyped = 0;
 	        _this.racetimeObj = new _countdowntimer2.default(60, 1000);;
 	        _this.state = {
@@ -20525,7 +20525,8 @@
 	            "isInputActive": false,
 	            "racetime": 60,
 	            'selfScore': {
-	                wpm: 0
+	                wpm: 0,
+	                "currentCharCount": _this.totalAccurateCharacterTyped
 	            }
 	        };
 	        return _this;
@@ -20573,12 +20574,13 @@
 	                var wpm = this.wpmCalculator(obj.timePassed);
 
 	                if (this.race) {
-	                    this.race.updateWPM(wpm, Date.now());
+	                    this.race.updateWPM(wpm, this.totalAccurateCharacterTyped, Date.now());
 	                }
 
 	                this.setState({
 	                    selfScore: {
 	                        'wpm': wpm,
+	                        'currentCharCount': this.totalAccurateCharacterTyped,
 	                        'last_updated_at': Date.now()
 	                    }, 'racetime': obj.seconds
 	                });
@@ -20644,12 +20646,13 @@
 	            this.setState({
 	                "selfScore": {
 	                    'wpm': wpm,
+	                    'currentCharCount': this.totalAccurateCharacterTyped,
 	                    'last_updated_at': Date.now()
 	                }
 	            });
 
 	            if (this.race) {
-	                this.race.updateWPM(wpm, Date.now());
+	                this.race.updateWPM(wpm, this.totalAccurateCharacterTyped, Date.now());
 	            }
 	        }
 	    }, {
@@ -20664,7 +20667,8 @@
 	                        countdowntime: this.state.countdowntime,
 	                        racetime: this.state.racetime,
 	                        selfScore: this.state.selfScore,
-	                        oponentsScore: this.state.oponentsScore
+	                        oponentsScore: this.state.oponentsScore,
+	                        totalCharCount: this.paragraph.getTotalCharCount()
 	                    }),
 	                    _react2.default.createElement(_textpane2.default, {
 	                        isActive: this.state.isInputActive,
@@ -20838,6 +20842,11 @@
 	            return index < 0 ? 0 : this.totalCharCountArray[index];
 	        }
 	    }, {
+	        key: "getTotalCharCount",
+	        value: function getTotalCharCount() {
+	            return this.getTotalCharCountAtIndex(this.wordArray.length - 1);
+	        }
+	    }, {
 	        key: "getArray",
 	        value: function getArray() {
 	            return this.wordArray;
@@ -20923,11 +20932,15 @@
 	                        key: "self",
 	                        player: "self",
 	                        wpm: that.props.selfScore.wpm,
+	                        totalCharCount: that.props.totalCharCount,
+	                        currentCharCount: that.props.selfScore.currentCharCount,
 	                        updated_at: that.props.selfScore.last_updated_at }));
 	                    for (var player in that.props.oponentsScore) {
 	                        array.push(_react2.default.createElement(ScoreBoard, {
 	                            key: player,
 	                            player: player,
+	                            totalCharCount: that.props.totalCharCount,
+	                            currentCharCount: that.props.oponentsScore[player].currentCharCount,
 	                            wpm: that.props.oponentsScore[player].wpm,
 	                            updated_at: that.props.oponentsScore[player].last_updated_at }));
 	                    }
@@ -20962,13 +20975,17 @@
 	            var time = this.props.time < 10 ? '0' + this.props.time : this.props.time;
 	            return _react2.default.createElement(
 	                "div",
-	                null,
+	                { id: "countdown" },
 	                _react2.default.createElement(
 	                    "h2",
 	                    null,
 	                    this.props.log,
 	                    " ",
-	                    time,
+	                    _react2.default.createElement(
+	                        "span",
+	                        { className: "time" },
+	                        time
+	                    ),
 	                    " seconds"
 	                )
 	            );
@@ -20993,13 +21010,20 @@
 	            var wpm = this.props.wpm < 10 ? "0" + this.props.wpm : this.props.wpm;
 	            return _react2.default.createElement(
 	                "div",
-	                null,
+	                { className: "scoreboard" },
 	                _react2.default.createElement(
-	                    "h2",
-	                    null,
-	                    this.props.player,
-	                    ": WPM is ",
-	                    wpm
+	                    "h3",
+	                    { className: "header_element player" },
+	                    this.props.player
+	                ),
+	                _react2.default.createElement("progress", { className: "header_element progress",
+	                    value: this.props.currentCharCount ? this.props.currentCharCount : 1,
+	                    max: this.props.totalCharCount }),
+	                _react2.default.createElement(
+	                    "h3",
+	                    { className: "header_element wpm" },
+	                    wpm,
+	                    " WPM"
 	                )
 	            );
 	        }
@@ -21231,14 +21255,20 @@
 	    key: "spanify",
 	    value: function spanify() {
 	      var regularStyle = {
-	        color: "black"
+	        color: "black",
+	        fontSize: 20,
+	        fontFamily: 'monospace'
 	      };
 	      var doneStyle = {
-	        color: "green"
+	        color: "green",
+	        fontSize: 20,
+	        fontFamily: 'monospace'
 	      };
 	      var currentStyle = {
 	        color: "white",
-	        backgroundColor: "green"
+	        backgroundColor: "green",
+	        fontSize: 20,
+	        fontFamily: 'monospace'
 	      };
 	      var currentWordIndex = this.props.currentWordIndex;
 
@@ -21384,8 +21414,6 @@
 	};
 
 	function updateRaceStatusToRunning(race_id, raceObj) {
-	    console.log("@ updateRaceStatusToRunning: " + " To listen for later updates listenForUpdate is called.");
-	    listenForUpdate(race_id, raceObj);
 	    // Add this user as new race participants.
 	    raceObj.participants.push(userID);
 	    console.log("@ updateRaceStatusToRunning: " + " user IDs of the participants " + raceObj.participants);
@@ -21394,22 +21422,26 @@
 	     */
 
 	    var raceStartsAt = Date.now() + 7 * 1000;
+	    var updateObj = {
+	        race_state: "running",
+	        participants: raceObj.participants,
+	        race_starts_At: raceStartsAt
+	    };
 
-	    var updatedRaceObj = {
+	    var obj = ref.update({
 	        type: "race",
 	        id: race_id,
 	        body: {
-	            doc: {
-	                race_state: "running",
-	                participants: raceObj.participants,
-	                race_starts_At: raceStartsAt
-	            }
+	            doc: updateObj
 	        }
-	    };
-
-	    var obj = ref.update(updatedRaceObj);
+	    });
 	    obj.on("data", function (res) {
-	        console.log("@ updateRaceStatusToRunning: " + " Data updating succesful.");
+	        console.log("@  updateRaceStatusToRunning: " + JSON.stringify(res));
+	        console.log("@ " + Date.now() + " updateRaceStatusToRunning: " + " Data updating succesful.");
+	        console.log("@ updateRaceStatusToRunning: " + " To listen for later updates listenForUpdate is called.");
+	        listenForUpdate(race_id, raceObj);
+	        mapParticipants(updateObj.participants);
+	        onRaceStatusUpdate(updateObj);
 	    });
 	    obj.on("error", function (err) {
 	        console.log("@ updateRaceStatusToRunning: " + "Error at updating, error message: " + err);
@@ -21439,9 +21471,9 @@
 	    });
 	    stream_obj.on("data", function (res) {
 	        var present_obj = res._source;
-	        console.log("@ listenForUpdate success");
+	        console.log("@ " + Date.now() + "  listenForUpdate success");
 	        var diff = compareObject(previous_obj, present_obj);
-	        console.log("@ listenForUpdate success : changed properties: ");
+	        console.log("@ " + Date.now() + "  listenForUpdate success : changed properties: ");
 	        console.log(diff);
 	        for (var property in diff) {
 	            if (property.startsWith("race_state")) {
@@ -21484,7 +21516,7 @@
 	    }
 	}
 
-	exports.updateWPM = function (wpm, time) {
+	exports.updateWPM = function (wpm, currentCharCount, time) {
 
 	    var updatedRaceObj = {
 	        type: "race",
@@ -21495,6 +21527,7 @@
 	    };
 	    updatedRaceObj.body.doc[userID] = {
 	        wpm: wpm,
+	        currentCharCount: currentCharCount,
 	        last_updated_at: time
 	    };
 	    var obj = ref.update(updatedRaceObj);
