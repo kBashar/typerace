@@ -104,8 +104,6 @@ function getRaceObj(race_id, callback) {
 };
 
 function updateRaceStatusToRunning(race_id, raceObj) {
-    console.log("@ updateRaceStatusToRunning: " + " To listen for later updates listenForUpdate is called.");
-    listenForUpdate(race_id, raceObj);
     // Add this user as new race participants.
     raceObj.participants.push(userID);
     console.log("@ updateRaceStatusToRunning: " + " user IDs of the participants " + raceObj.participants);
@@ -114,22 +112,26 @@ function updateRaceStatusToRunning(race_id, raceObj) {
      */
 
     let raceStartsAt = Date.now() + (7 * 1000);
+    var updateObj = {
+        race_state: "running",
+        participants: raceObj.participants,
+        race_starts_At: raceStartsAt
+    };
 
-    var updatedRaceObj = {
+    var obj = ref.update({
         type: "race",
         id: race_id,
         body: {
-            doc: {
-                race_state: "running",
-                participants: raceObj.participants,
-                race_starts_At: raceStartsAt
-            }
+            doc: updateObj
         }
-    }
-
-    var obj = ref.update(updatedRaceObj);
+    });
     obj.on("data", function (res) {
-        console.log("@ updateRaceStatusToRunning: " + " Data updating succesful.");
+        console.log("@  updateRaceStatusToRunning: " + JSON.stringify(res));
+        console.log("@ " + Date.now() + " updateRaceStatusToRunning: " + " Data updating succesful.");
+        console.log("@ updateRaceStatusToRunning: " + " To listen for later updates listenForUpdate is called.");
+        listenForUpdate(race_id, raceObj);
+        mapParticipants(updateObj.participants)
+        onRaceStatusUpdate(updateObj);
     });
     obj.on("error", function (err) {
         console.log("@ updateRaceStatusToRunning: " + "Error at updating, error message: " + err);
@@ -159,9 +161,9 @@ function listenForUpdate(race_id, race_obj) {
     });
     stream_obj.on("data", function (res) {
         let present_obj = res._source;
-        console.log("@ listenForUpdate success");
+        console.log("@ " + Date.now() + "  listenForUpdate success");
         let diff = compareObject(previous_obj, present_obj);
-        console.log("@ listenForUpdate success : changed properties: ");
+        console.log("@ " + Date.now() + "  listenForUpdate success : changed properties: ");
         console.log(diff);
         for (let property in diff) {
             if (property.startsWith("race_state")) {
@@ -192,7 +194,7 @@ function createScoreObj(obj) {
 
 function mapParticipants(pidArray) {
     let counter = 1;
-    for (let i =0; i<pidArray.length; i++ ) {
+    for (let i = 0; i < pidArray.length; i++) {
         let pid = pidArray[i];
         console.log(pid);
         if (!pid.localeCompare(userID)) {
@@ -206,7 +208,7 @@ function mapParticipants(pidArray) {
     }
 }
 
-exports.updateWPM = function (wpm, time) {
+exports.updateWPM = function (wpm, currentCharCount, time) {
 
     var updatedRaceObj = {
         type: "race",
@@ -219,6 +221,7 @@ exports.updateWPM = function (wpm, time) {
     }
     updatedRaceObj.body.doc[userID] = {
         wpm: wpm,
+        currentCharCount: currentCharCount,
         last_updated_at: time
     }
     var obj = ref.update(updatedRaceObj);

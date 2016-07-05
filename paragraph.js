@@ -18,6 +18,9 @@ export default class Paragraph {
         console.log("requested for: " + index);
         return index < 0 ? 0 : this.totalCharCountArray[index];
     }
+    getTotalCharCount() {
+        return this.getTotalCharCountAtIndex(this.wordArray.length-1);
+    }
     getArray() {
         return this.wordArray;
     }

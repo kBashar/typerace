@@ -7,21 +7,27 @@ export default class TextContainer extends React.Component {
 
   spanify() {
     var regularStyle = {
-      color: "black"
+      color: "black",
+      fontSize: 20,
+      fontFamily: 'monospace'
     }
     var doneStyle = {
       color: "green",
+      fontSize: 20,
+      fontFamily: 'monospace'
     }
     var currentStyle = {
       color: "white",
-      backgroundColor: "green"
+      backgroundColor: "green",
+      fontSize: 20,
+      fontFamily: 'monospace'
     }
     let currentWordIndex = this.props.currentWordIndex;
 
     return this.props.wordArray.map(function (word, index) {
       let style;
       //all words are typed
-      if(currentWordIndex === -1) {
+      if (currentWordIndex === -1) {
         style = doneStyle;
       }
       else if (currentWordIndex === index) {
@@ -44,7 +50,7 @@ export default class TextContainer extends React.Component {
   render() {
     return (
       <div id="wordContainer">
-        {this.spanify()}
+        {this.spanify() }
       </div>
     );
   }

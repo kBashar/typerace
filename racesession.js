@@ -18,7 +18,7 @@ export default class RaceSession extends React.Component {
         this.onAccurateCharacterTyped = this.onAccurateCharacterTyped.bind(this);
         this.countdownhandler = this.countdownhandler.bind(this);
         this.racetimehandler = this.racetimehandler.bind(this);
-        this.paragraph = new Paragraph("I'm lost in the middle of my birthday. I want my friends, their touch, with the earth's last love. I will take life's final offering, I will take the human's last blessing. Today my sack is empty. I have given completely whatever I had to give. In return if I receive anything—some love, some forgiveness—then I will take it with me when I step on the boat that crosses to the festival of the wordless end.");
+        this.paragraph = new Paragraph("I'm lost in the middle of my birthday. I want my friends, their touch, with the earth's last love. I will take life's final offering, I will take the human's last blessing. Today my sack is empty. I have given completely whatever I had to give. In return if I receive anything some love, some forgiveness then I will take it with me when I step on the boat that crosses to the festival of the wordless end.");
         this.totalAccurateCharacterTyped = 0;
         this.racetimeObj = new CountDownTimer(60, 1000);;
         this.state = {
@@ -28,7 +28,8 @@ export default class RaceSession extends React.Component {
             "isInputActive": false,
             "racetime": 60,
             'selfScore': {
-                wpm: 0
+                wpm: 0,
+                "currentCharCount": this.totalAccurateCharacterTyped,
             }
         };
     }
@@ -71,12 +72,13 @@ export default class RaceSession extends React.Component {
             let wpm = this.wpmCalculator(obj.timePassed)
 
             if (this.race) {
-                this.race.updateWPM(wpm, Date.now())
+                this.race.updateWPM(wpm, this.totalAccurateCharacterTyped, Date.now())
             }
 
             this.setState({
                 selfScore: {
                     'wpm': wpm,
+                    'currentCharCount': this.totalAccurateCharacterTyped,
                     'last_updated_at': Date.now()
                 }, 'racetime': obj.seconds
             })
@@ -142,13 +144,14 @@ export default class RaceSession extends React.Component {
             {
                 "selfScore": {
                     'wpm': wpm,
+                    'currentCharCount': this.totalAccurateCharacterTyped,
                     'last_updated_at': Date.now()
                 }
             }
         );
 
         if (this.race) {
-            this.race.updateWPM(wpm, Date.now());
+            this.race.updateWPM(wpm, this.totalAccurateCharacterTyped, Date.now());
         }
     }
 
@@ -162,6 +165,7 @@ export default class RaceSession extends React.Component {
                         racetime = {this.state.racetime}
                         selfScore = {this.state.selfScore}
                         oponentsScore = {this.state.oponentsScore}
+                        totalCharCount = {this.paragraph.getTotalCharCount()}
                         />
                     <TextPane
                         isActive = {this.state.isInputActive}
