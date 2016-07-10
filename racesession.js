@@ -3,7 +3,7 @@ import CountDownTimer from "./countdowntimer";
 import Paragraph from "./paragraph";
 import HeaderPanel from "./headerpanel";
 import TextPane from "./textpane";
-
+import ResultPage from "./resultpage";
 
 
 
@@ -89,7 +89,7 @@ export default class RaceSession extends React.Component {
         }
 
         if (obj.minutes === 0 && obj.seconds === 0) {
-            console.log("@ startRace: " + "race is finished.");
+            this.setState({race_state:"finished"})
         }
     }
 
@@ -179,9 +179,14 @@ export default class RaceSession extends React.Component {
                 <WaitingView log = {"Race starts in " + this.state.countdowntime + " seconds"} />
             );
         }
-        else {
+        else if(!this.state.race_state.localeCompare("waiting")) {
             return (
                 <WaitingView log = "Waiting for user" />
+            );
+        }
+        else {
+            return(
+                <ResultPage matchType = {this.props.route.matchType}/>
             );
         }
     }
