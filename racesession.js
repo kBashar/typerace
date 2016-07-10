@@ -12,7 +12,7 @@ export default class RaceSession extends React.Component {
         super(props);
         this.onRaceStatusUpdate = this.onRaceStatusUpdate.bind(this);
         this.onScoreUpdate = this.onScoreUpdate.bind(this);
-        if (!this.props.matchType.localeCompare("race")) {
+        if (!this.props.route.matchType.localeCompare("race")) {
             this.race = require("./racecontroller");
         }
         this.onAccurateCharacterTyped = this.onAccurateCharacterTyped.bind(this);

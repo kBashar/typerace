@@ -2,10 +2,12 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-//import Paragraph from "./paragraph";
+import RaceSession from "./racesession"
 import LandingPage from "./landingpage";
+import { Router, Route, Link, browserHistory } from 'react-router'
 
-
-//var paragraph = new Paragraph("The difference is scoping. var is scoped to me");
-//ReactDOM.render(<TypeRace paragraph = {paragraph} />, document.getElementById("root"));
-ReactDOM.render(<LandingPage />, document.getElementById("root"));
+ReactDOM.render( <Router history = {browserHistory}>
+                <Route path = "/" component = {LandingPage} />
+                <Route path = "practice" component = {RaceSession} matchType = 'practice'/>
+                <Route path = "race" component = {RaceSession} matchtype = 'race' />
+        </Router>, document.getElementById("root"));
