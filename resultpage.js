@@ -10,26 +10,34 @@ export default class ResultPage extends React.Component {
     }
 
     render() {
-        
         let str;
         let path = "/" + this.props.matchType;
+        var arr = this.props.score.map((value, i) => {
+            if (!value.name.localeCompare("self")) {
+                return (<li key = {i}> Your WPM is <strong className="wpm_value">{value.wpm} </strong></li>)
+            }
+            else {
+                return (<li key = {i}> {value.name} WPM is <strong className="wpm_value">{value.wpm}</strong> </li>)
+            }
+        })
         if (!this.props.matchType.localeCompare("race")) {
-            str = "Race "
+            str = "Race ";
+
         }
         if (!this.props.matchType.localeCompare("practice")) {
             str = "Practice "
         }
+
         return (
             <div id="result_container">
                 <div id="result">
                     <ul>
-                        <li> Your WPM is <strong className="wpm_value">45 </strong></li>
-                        <li> Opponent1 WPM is <strong className="wpm_value">55</strong> </li>
+                        {arr}
                     </ul>
                 </div>
                 <div id="footer">
                     <div>Go back to <Link to="/" component={Landingpage}>home</Link></div>
-                    <div>{str} <Link to={path} component = {RaceSession} matchType = {this.props.matchType}>more</Link></div>
+                    //<div>{str} <Link to={path} component = {RaceSession}>more</Link></div>
                 </div>
             </div>
         );

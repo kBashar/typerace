@@ -20,13 +20,12 @@ export default class RaceSession extends React.Component {
         this.racetimehandler = this.racetimehandler.bind(this);
         this.paragraph = new Paragraph("I'm lost in the middle of my birthday. I want my friends, their touch, with the earth's last love. I will take life's final offering, I will take the human's last blessing. Today my sack is empty. I have given completely whatever I had to give. In return if I receive anything some love, some forgiveness then I will take it with me when I step on the boat that crosses to the festival of the wordless end.");
         this.totalAccurateCharacterTyped = 0;
-        this.racetimeObj = new CountDownTimer(60, 1000);;
+        this.racetimeObj = new CountDownTimer(5, 1000);
         this.state = {
             "race_state": "waiting",
             "headertype": "countdown",
             "countdowntime": 5,
             "isInputActive": false,
-            "racetime": 60,
             'selfScore': {
                 wpm: 0,
                 "currentCharCount": this.totalAccurateCharacterTyped,
@@ -154,7 +153,23 @@ export default class RaceSession extends React.Component {
             this.race.updateWPM(wpm, this.totalAccurateCharacterTyped, Date.now());
         }
     }
-
+    getPlayerScore() {
+        var score = [
+            {
+                name:'self',
+                wpm: this.state.selfScore.wpm
+            }
+        ]
+        if(this.race) {
+            for (let player in this.state.oponentsScore) {
+                score.push({
+                    name: player,
+                    wpm: this.state.oponentsScore[player].wpm
+                })
+            }
+        }
+        return score
+    }
     render() {
         if (!this.state.race_state.localeCompare("running")) {
             return (
@@ -185,8 +200,11 @@ export default class RaceSession extends React.Component {
             );
         }
         else {
+            console.log(this.getPlayerScore())
             return(
-                <ResultPage matchType = {this.props.route.matchType}/>
+                <ResultPage 
+                    score = {this.getPlayerScore()} 
+                    matchType = {this.props.route.matchType}/>
             );
         }
     }

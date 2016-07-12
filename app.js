@@ -9,5 +9,5 @@ import { Router, Route, Link, browserHistory } from 'react-router'
 ReactDOM.render( <Router history = {browserHistory}>
                 <Route path = "/" component = {LandingPage} />
                 <Route path = "practice" component = {RaceSession} matchType = 'practice'/>
-                <Route path = "race" component = {RaceSession} matchtype = 'race' />
+                <Route path = "race" component = {RaceSession} matchType = 'race' />
         </Router>, document.getElementById("root"));
