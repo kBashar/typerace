@@ -12,19 +12,20 @@ export default class RaceSession extends React.Component {
         super(props);
         this.onRaceStatusUpdate = this.onRaceStatusUpdate.bind(this);
         this.onScoreUpdate = this.onScoreUpdate.bind(this);
+        this.articleTextFetched = this.articleTextFetched.bind(this);
         if (!this.props.route.matchType.localeCompare("race")) {
             this.race = require("./racecontroller");
         }
         this.onAccurateCharacterTyped = this.onAccurateCharacterTyped.bind(this);
         this.countdownhandler = this.countdownhandler.bind(this);
         this.racetimehandler = this.racetimehandler.bind(this);
-        this.paragraph = new Paragraph("I'm lost in the middle of my birthday. I want my friends, their touch, with the earth's last love. I will take life's final offering, I will take the human's last blessing. Today my sack is empty. I have given completely whatever I had to give. In return if I receive anything some love, some forgiveness then I will take it with me when I step on the boat that crosses to the festival of the wordless end.");
+        this.paragraph;
         this.totalAccurateCharacterTyped = 0;
-        this.racetimeObj = new CountDownTimer(5, 1000);
+        this.racetimeObj = new CountDownTimer(60, 1000);
         this.state = {
             "race_state": "waiting",
             "headertype": "countdown",
-            "countdowntime": 5,
+            "countdowntime": 60,
             "isInputActive": false,
             'selfScore': {
                 wpm: 0,
@@ -38,19 +39,39 @@ export default class RaceSession extends React.Component {
             this.race.startRace(this.onRaceStatusUpdate, this.onScoreUpdate);
         }
         else {
+            this.fetchArticleText();
             this.startRaceIn(5);
+        }
+    }
+
+    articleFetcherCallNack(text) {
+        if (this.state.race_state.localeCompare("running") && text) {
+            this.paragraph = new Paragraph(text);
         }
     }
 
     onRaceStatusUpdate(raceObj) {
         console.log("On race status update: " + raceObj.race_state);
         // There is another participants in race and race is about to start.
-        if (!raceObj.race_state.localeCompare("running")) {
+        if (!raceObj.race_state.localeCompare("started")) {
+            var articleIndex = raceObj.race_article_index;
+            fetchArticleText(articleIndex);
             var raceStartsAt = raceObj.race_starts_At;
             var timeDifference = Math.ceil((raceStartsAt - Date.now()) / 1000);
             this.startRaceIn(timeDifference);
         }
     };
+
+    fetchArticleText() {
+        var contentFetcher = require('./contentfetcher.js');
+        contentFetcher.createContent(this.articleTextFetched)
+    }
+
+    articleTextFetched(text) {
+        if (this.state.race_state.localeCompare("running")) {
+            this.paragraph = new Paragraph(text);
+        }
+    }
 
     countdownhandler(obj) {
         this.setState({ countdowntime: obj.seconds })
@@ -88,7 +109,7 @@ export default class RaceSession extends React.Component {
         }
 
         if (obj.minutes === 0 && obj.seconds === 0) {
-            this.setState({race_state:"finished"})
+            this.setState({ race_state: "finished" })
         }
     }
 
@@ -103,12 +124,12 @@ export default class RaceSession extends React.Component {
     startRace() {
         this.racetimeObj.onTick(this.racetimehandler);
         this.racetimeObj.start();
-        this.setState({ 
+        this.setState({
             "race_state": "running",
             'headertype': 'scoreboard',
             "isInputActive": true
 
-         });
+        });
 
         console.log("@ startRace: " + "race count down started.")
     };
@@ -156,11 +177,11 @@ export default class RaceSession extends React.Component {
     getPlayerScore() {
         var score = [
             {
-                name:'self',
+                name: 'self',
                 wpm: this.state.selfScore.wpm
             }
         ]
-        if(this.race) {
+        if (this.race) {
             for (let player in this.state.oponentsScore) {
                 score.push({
                     name: player,
@@ -180,7 +201,7 @@ export default class RaceSession extends React.Component {
                         racetime = {this.state.racetime}
                         selfScore = {this.state.selfScore}
                         oponentsScore = {this.state.oponentsScore}
-                        totalCharCount = {this.paragraph.getTotalCharCount()}
+                        totalCharCount = {this.paragraph.getTotalCharCount() }
                         />
                     <TextPane
                         isActive = {this.state.isInputActive}
@@ -194,16 +215,16 @@ export default class RaceSession extends React.Component {
                 <WaitingView log = {"Race starts in " + this.state.countdowntime + " seconds"} />
             );
         }
-        else if(!this.state.race_state.localeCompare("waiting")) {
+        else if (!this.state.race_state.localeCompare("waiting")) {
             return (
                 <WaitingView log = "Waiting for user" />
             );
         }
         else {
             console.log(this.getPlayerScore())
-            return(
-                <ResultPage 
-                    score = {this.getPlayerScore()} 
+            return (
+                <ResultPage
+                    score = {this.getPlayerScore() }
                     matchType = {this.props.route.matchType}/>
             );
         }

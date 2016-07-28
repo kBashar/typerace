@@ -8,6 +8,7 @@ var race_obj;
 var onRaceStatusUpdate;
 var onScoreUpdate;
 var participants = {};
+var race_article_url = "https://medium.com/@CoyleAndrew/design-better-forms-96fadca0f49c";
 
 var ref = new Appbase({
     url: 'https://scalr.api.appbase.io',
@@ -31,7 +32,7 @@ function onWaitingRaceAvailable(res) {
         race_obj = res.hits.hits[0]._source;
         race_id = res.hits.hits[0]._id;
         console.log("@ onWaitingRaceAvailable: " + "ID of the race is " + race_id);
-        updateRaceStatusToRunning(race_id, race_obj);
+        updateRaceStatusToStarted(race_id, race_obj);
     }
     else {
         onWaitingRaceNotAvailable();
@@ -67,7 +68,8 @@ function createNewRace() {
         race_state: "waiting",
         participants: [
             userID
-        ]
+        ],
+        race_article_index: getRandomIndex(0,9),
     }
 
     var obj = ref.index({
@@ -103,17 +105,17 @@ function getRaceObj(race_id, callback) {
     });
 };
 
-function updateRaceStatusToRunning(race_id, raceObj) {
+function updateRaceStatusToStarted(race_id, raceObj) {
     // Add this user as new race participants.
     raceObj.participants.push(userID);
-    console.log("@ updateRaceStatusToRunning: " + " user IDs of the participants " + raceObj.participants);
+    console.log("@ updateRaceStatusToStarted: " + " user IDs of the participants " + raceObj.participants);
     /**
      * Race will start in next 10 seconds;
      */
 
     let raceStartsAt = Date.now() + (7 * 1000);
     var updateObj = {
-        race_state: "running",
+        race_state: "started",
         participants: raceObj.participants,
         race_starts_At: raceStartsAt
     };
@@ -126,15 +128,15 @@ function updateRaceStatusToRunning(race_id, raceObj) {
         }
     });
     obj.on("data", function (res) {
-        console.log("@  updateRaceStatusToRunning: " + JSON.stringify(res));
-        console.log("@ " + Date.now() + " updateRaceStatusToRunning: " + " Data updating succesful.");
-        console.log("@ updateRaceStatusToRunning: " + " To listen for later updates listenForUpdate is called.");
+        console.log("@  updateRaceStatusToStarted: " + JSON.stringify(res));
+        console.log("@ " + Date.now() + " updateRaceStatusToStarted: " + " Data updating succesful.");
+        console.log("@ updateRaceStatusToStarted: " + " To listen for later updates listenForUpdate is called.");
         listenForUpdate(race_id, raceObj);
         mapParticipants(updateObj.participants)
         onRaceStatusUpdate(updateObj);
     });
     obj.on("error", function (err) {
-        console.log("@ updateRaceStatusToRunning: " + "Error at updating, error message: " + err);
+        console.log("@ updateRaceStatusToStarted: " + "Error at updating, error message: " + err);
     });
 };
 
@@ -231,4 +233,11 @@ exports.updateWPM = function (wpm, currentCharCount, time) {
     obj.on('error', function (err) {
         console.log("@ updateWPM: " + "Error at updateWPM, error message: " + err);
     });
+}
+
+/**
+ * To get a random number in between 0-9 to be used as index of the story.
+ */
+function getRandomIndex(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
