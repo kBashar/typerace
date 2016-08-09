@@ -4,12 +4,12 @@
 
 var sources = [{ "id": "arstechnica", "name": "Ars Technica", "sortBysAvailable": ["latest"] }, { "id": "bbcnews", "name": "BBC News", "sortBysAvailable": ["top", "popular"] }, { "id": "bbcsport", "name": "BBC Sport", "sortBysAvailable": ["top"] }, { "id": "bloomberg", "name": "Bloomberg", "sortBysAvailable": ["top"] }, { "id": "cnbc", "name": "CNBC", "sortBysAvailable": ["top", "popular"] }, { "id": "cnn", "name": "CNN", "sortBysAvailable": ["top"] }, { "id": "engadget", "name": "Engadget", "sortBysAvailable": ["top", "latest", "popular"] }, { "id": "entertainmentweekly", "name": "Entertainment Weekly", "sortBysAvailable": ["top", "popular"] }, { "id": "espn", "name": "ESPN", "sortBysAvailable": ["top"] }, { "id": "googlenews", "name": "Google News", "sortBysAvailable": ["top"] }, { "id": "hackernews", "name": "Hacker News", "sortBysAvailable": ["top", "latest", "popular"] }, { "id": "independent", "name": "Independent", "sortBysAvailable": ["top", "popular"] }, { "id": "mashable", "name": "Mashable", "sortBysAvailable": ["latest", "popular"] }, { "id": "recode", "name": "Recode", "sortBysAvailable": ["top", "popular"] }, { "id": "reuters", "name": "Reuters", "sortBysAvailable": ["top", "latest", "popular"] }, { "id": "techcrunch", "name": "TechCrunch", "sortBysAvailable": ["top", "latest", "popular"] }, { "id": "theguardianuk", "name": "The Guardian (UK)", "sortBysAvailable": ["top", "popular"] }, { "id": "thehuffingtonpost", "name": "The Huffington Post", "sortBysAvailable": ["top", "popular"] }, { "id": "thenewyorktimes", "name": "The New York Times", "sortBysAvailable": ["popular"] }, { "id": "thenextweb", "name": "The Next Web", "sortBysAvailable": ["latest", "popular"] }, { "id": "thewallstreetjournal", "name": "The Wall Street Journal", "sortBysAvailable": ["top", "popular"] }, { "id": "thewashingtonpost", "name": "The Washington Post", "sortBysAvailable": ["top", "popular"] }, { "id": "wiredde", "name": "Wired.de", "sortBysAvailable": ["top", "latest"] }]
 
-var minimumRequiredCharLength = 750;
+var minimumRequiredCharLength = 350;
 
 
 function createCORSRequest(method, url) {
   var xhr = new XMLHttpRequest();
-  xhr.open(method, url, false);
+  xhr.open(method, url);
   return xhr;
 }
 
@@ -45,7 +45,7 @@ const onHeadlinesLoad = function () {
   if (this.status === 200) {
     var response = JSON.parse(this.responseText);
     var content = joinArticles(response.articles);
-    console.log(content);
+    console.log("Content length is: " + content.length);
     this.callback(content);
   }
 }
@@ -58,7 +58,10 @@ const joinArticles = function (articles) {
   var str = "";
   for (var index in articles) {
     var articleDescription = articles[index].description;
-    str += articleDescription + '\n';
+    str += articleDescription + ' ';
+    if(str.length >= minimumRequiredCharLength) {
+      break;
+    }
   }
   return str.trim();
 }

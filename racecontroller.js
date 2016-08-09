@@ -40,8 +40,13 @@ function onWaitingRaceAvailable(res) {
 };
 
 function onWaitingRaceNotAvailable(res) {
-    createNewRace();
+    var contentFetcher = require('./contentfetcher.js');
+    contentFetcher.createContent(onContentReadyCallback)
 };
+
+function onContentReadyCallback(content) {
+    createNewRace(content);
+}
 
 function checkWaitingRaceExists() {
     console.log("@ checkWaitingRaceExists called");
@@ -63,13 +68,14 @@ function checkWaitingRaceExists() {
     });
 };
 
-function createNewRace() {
+function createNewRace(content) {
+    console.log(content);
     var jsonBody = {
         race_state: "waiting",
         participants: [
             userID
         ],
-        race_article_index: getRandomIndex(0,9),
+        content: content,
     }
 
     var obj = ref.index({
@@ -100,12 +106,14 @@ function getRaceObj(race_id, callback) {
         callback(race_id, race_obj);
     });
     obj.on("error", function (err) {
-        console.log("@ getRaceObj: " + "Retriving race object for race ID "
+        console.log("@ getRaceObj: Retriving race object for race ID "
             + race_id + " is unsuccessful, error messeage: " + err);
     });
 };
 
 function updateRaceStatusToStarted(race_id, raceObj) {
+    console.log("@ updateRaceStatusToStarted: " + " To listen for later updates listenForUpdate is called.");
+    listenForUpdate(race_id, raceObj);
     // Add this user as new race participants.
     raceObj.participants.push(userID);
     console.log("@ updateRaceStatusToStarted: " + " user IDs of the participants " + raceObj.participants);
@@ -130,10 +138,8 @@ function updateRaceStatusToStarted(race_id, raceObj) {
     obj.on("data", function (res) {
         console.log("@  updateRaceStatusToStarted: " + JSON.stringify(res));
         console.log("@ " + Date.now() + " updateRaceStatusToStarted: " + " Data updating succesful.");
-        console.log("@ updateRaceStatusToStarted: " + " To listen for later updates listenForUpdate is called.");
-        listenForUpdate(race_id, raceObj);
-        mapParticipants(updateObj.participants)
-        onRaceStatusUpdate(updateObj);
+        //mapParticipants(updateObj.participants)
+        //onRaceStatusUpdate(updateObj);
     });
     obj.on("error", function (err) {
         console.log("@ updateRaceStatusToStarted: " + "Error at updating, error message: " + err);
@@ -170,7 +176,7 @@ function listenForUpdate(race_id, race_obj) {
         for (let property in diff) {
             if (property.startsWith("race_state")) {
                 mapParticipants(present_obj.participants)
-                onRaceStatusUpdate(diff);
+                onRaceStatusUpdate(present_obj);
             }
             else if (property.startsWith("PID")) {
                 onScoreUpdate(createScoreObj(diff));

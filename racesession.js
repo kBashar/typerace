@@ -21,11 +21,11 @@ export default class RaceSession extends React.Component {
         this.racetimehandler = this.racetimehandler.bind(this);
         this.paragraph;
         this.totalAccurateCharacterTyped = 0;
-        this.racetimeObj = new CountDownTimer(60, 1000);
+        this.racetimeObj = new CountDownTimer(120, 1000);
         this.state = {
             "race_state": "waiting",
             "headertype": "countdown",
-            "countdowntime": 60,
+            "countdowntime": 120,
             "isInputActive": false,
             'selfScore': {
                 wpm: 0,
@@ -40,7 +40,7 @@ export default class RaceSession extends React.Component {
         }
         else {
             this.fetchArticleText();
-            this.startRaceIn(5);
+            this.startRaceIn(10);
         }
     }
 
@@ -51,11 +51,11 @@ export default class RaceSession extends React.Component {
     }
 
     onRaceStatusUpdate(raceObj) {
-        console.log("On race status update: " + raceObj.race_state);
+        console.log("On race status update: " + raceObj);
         // There is another participants in race and race is about to start.
         if (!raceObj.race_state.localeCompare("started")) {
-            var articleIndex = raceObj.race_article_index;
-            fetchArticleText(articleIndex);
+            var content = raceObj.content;
+            this.paragraph = new Paragraph(content);
             var raceStartsAt = raceObj.race_starts_At;
             var timeDifference = Math.ceil((raceStartsAt - Date.now()) / 1000);
             this.startRaceIn(timeDifference);
