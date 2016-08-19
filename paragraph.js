@@ -2,6 +2,7 @@
 
 export default class Paragraph {
     constructor(paragraph_text) {
+        paragraph_text = this.removeCurlyQoutes(paragraph_text)
          this.wordArray = paragraph_text.split(" ");
          this.currentWordIndex = 0;
          let totalCharCount = [];
@@ -14,6 +15,19 @@ export default class Paragraph {
         });
         this.totalCharCountArray = totalCharCount; 
     }
+
+    removeCurlyQoutes(str) {
+        var newstr = str.replace(/‘|’|“|”/g, function (char) {
+            if(!char.localeCompare('‘')| !char.localeCompare('’') ) {
+                return "'"
+            }
+            else {
+                return '"'
+            }
+        })
+        return newstr
+    }
+
     getTotalCharCountAtIndex(index) {
         console.log("requested for: " + index);
         return index < 0 ? 0 : this.totalCharCountArray[index];
