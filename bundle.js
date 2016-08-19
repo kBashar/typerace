@@ -70,6 +70,7 @@
 	                _reactRouter.Router,
 	                { history: _reactRouter.browserHistory },
 	                _react2.default.createElement(_reactRouter.Route, { path: "/", component: _landingpage2.default }),
+	                _react2.default.createElement(_reactRouter.Route, { path: "typerace", component: _landingpage2.default }),
 	                _react2.default.createElement(_reactRouter.Route, { path: "practice", component: _racesession2.default, matchType: "practice" }),
 	                _react2.default.createElement(_reactRouter.Route, { path: "race", component: _racesession2.default, matchType: "race" })
 	), document.getElementById("root")); /*jshint esversion: 6 */
