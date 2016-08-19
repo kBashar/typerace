@@ -18,7 +18,7 @@ export default class Paragraph {
 
     removeCurlyQoutes(str) {
         var newstr = str.replace(/‘|’|“|”/g, function (char) {
-            if(!char.localeCompare('‘')| !char.localeCompare('’') ) {
+            if(!char.localeCompare('’') | !char.localeCompare('‘')| !char.localeCompare('’') ) {
                 return "'"
             }
             else {
