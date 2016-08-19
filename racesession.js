@@ -217,7 +217,7 @@ export default class RaceSession extends React.Component {
         }
         else if (!this.state.race_state.localeCompare("waiting")) {
             return (
-                <WaitingView log = "Waiting for user" />
+                <WaitingView log = "Waiting for another user" />
             );
         }
         else {
