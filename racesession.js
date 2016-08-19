@@ -21,11 +21,11 @@ export default class RaceSession extends React.Component {
         this.racetimehandler = this.racetimehandler.bind(this);
         this.paragraph;
         this.totalAccurateCharacterTyped = 0;
-        this.racetimeObj = new CountDownTimer(120, 1000);
+        this.racetimeObj = new CountDownTimer(60, 1000);
         this.state = {
             "race_state": "waiting",
             "headertype": "countdown",
-            "countdowntime": 120,
+            "countdowntime": 60,
             "isInputActive": false,
             'selfScore': {
                 wpm: 0,
