@@ -21170,11 +21170,11 @@
 	        _this.racetimehandler = _this.racetimehandler.bind(_this);
 	        _this.paragraph;
 	        _this.totalAccurateCharacterTyped = 0;
-	        _this.racetimeObj = new _countdowntimer2.default(120, 1000);
+	        _this.racetimeObj = new _countdowntimer2.default(60, 1000);
 	        _this.state = {
 	            "race_state": "waiting",
 	            "headertype": "countdown",
-	            "countdowntime": 120,
+	            "countdowntime": 60,
 	            "isInputActive": false,
 	            'selfScore': {
 	                wpm: 0,
