@@ -21519,6 +21519,7 @@
 	    function Paragraph(paragraph_text) {
 	        _classCallCheck(this, Paragraph);
 
+	        paragraph_text = this.removeCurlyQoutes(paragraph_text);
 	        this.wordArray = paragraph_text.split(" ");
 	        this.currentWordIndex = 0;
 	        var totalCharCount = [];
@@ -21533,6 +21534,18 @@
 	    }
 
 	    _createClass(Paragraph, [{
+	        key: "removeCurlyQoutes",
+	        value: function removeCurlyQoutes(str) {
+	            var newstr = str.replace(/‘|’|“|”/g, function (char) {
+	                if (!char.localeCompare('’') | !char.localeCompare('‘') | !char.localeCompare('’')) {
+	                    return "'";
+	                } else {
+	                    return '"';
+	                }
+	            });
+	            return newstr;
+	        }
+	    }, {
 	        key: "getTotalCharCountAtIndex",
 	        value: function getTotalCharCountAtIndex(index) {
 	            console.log("requested for: " + index);
